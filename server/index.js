@@ -19,28 +19,24 @@ app.use(express.json({ limit: '50mb' }));
 app.post('/api/analyze', async (req, res) => {
   try {
     const apiKey = process.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "Groq API Key not found in .env.local" });
-    }
+    if (!apiKey) return res.status(500).json({ error: "Groq API Key not found in .env.local" });
 
     const { contractText } = req.body;
     
+    // Establishing SSE headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
     const systemPrompt = `You are a senior legal risk analyst. Analyze contracts and identify risky clauses.
-Return ONLY valid JSON. Output in JSON format.
-{
-  "summary": "2-3 sentence overall risk assessment",
-  "riskScore": <1-100 number>,
-  "risks": [
-    {
-      "id": <number>,
-      "quote": "exact verbatim text from contract (10-35 words)",
-      "level": "high|medium|low",
-      "category": "Payment|IP|Liability|Termination|Confidentiality|Arbitration|Indemnity|Penalty|Ambiguity|Other",
-      "title": "short risk title (4-6 words)",
-      "explanation": "2-3 sentences: why risky, what to watch for, recommended action"
-    }
-  ]
-}
+You MUST output strictly in JSONL (JSON Lines) format. Do not use an array. Do not use markdown backticks. Return ONLY raw JSON strings separated by newlines.
+
+Line 1 MUST be exactly this structure:
+{"type":"summary", "summary": "2-3 sentence overall risk assessment", "riskScore": <number>}
+
+Lines 2 through 10 MUST be exactly this structure (one line per risk):
+{"type":"risk", "id": <number>, "quote": "exact verbatim text from contract (10-35 words)", "level": "high|medium|low", "category": "Payment|IP|Liability|Termination|Confidentiality|Arbitration|Indemnity|Penalty|Ambiguity|Other", "title": "short risk title (4-6 words)", "explanation": "2-3 sentences: why risky"}
+
 Identify 6-12 risks. Only quote text that appears verbatim in the contract.`;
 
     const payload = {
@@ -50,34 +46,63 @@ Identify 6-12 risks. Only quote text that appears verbatim in the contract.`;
         { role: "user", content: `Analyze this contract:\n\n${contractText}` }
       ],
       temperature: 0.1,
-      response_format: { type: "json_object" }
+      stream: true // Enable native streaming from Groq
     };
 
     const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
       body: JSON.stringify(payload)
     });
 
     if (!groqRes.ok) {
-      const errorText = await groqRes.text();
-      return res.status(groqRes.status).json({ error: `Groq API Error: ${errorText}` });
+        res.write(`data: ${JSON.stringify({ error: await groqRes.text() })}\n\n`);
+        return res.end();
     }
 
-    const data = await groqRes.json();
-    let rawContent = data.choices[0].message.content;
+    const reader = groqRes.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+      
+      for (const line of lines) {
+         if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+               const data = JSON.parse(line.slice(6));
+               if (data.choices[0].delta.content) {
+                  buffer += data.choices[0].delta.content;
+                  // If buffer contains a newline, we have generated a full JSONL structural line!
+                  if (buffer.includes('\n')) {
+                     const parts = buffer.split('\n');
+                     buffer = parts.pop(); // keep remainder
+                     for (const part of parts) {
+                        if (part.trim()) {
+                            // Forward the complete JSONL object independently to the frontend
+                            res.write(`data: ${part}\n\n`);
+                        }
+                     }
+                  }
+               }
+            } catch(e) {}
+         }
+      }
+    }
     
-    // Groq sometimes wraps json outputs in markdown code blocks even in json mode
-    rawContent = rawContent.replace(/^```json\s*/is, '').replace(/\s*```$/is, '');
-    
-    const resultJson = JSON.parse(rawContent);
-    res.json(resultJson);
+    // Check remainder
+    if (buffer.trim()) res.write(`data: ${buffer}\n\n`);
+
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.end();
   }
 });
 

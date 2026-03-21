@@ -1,12 +1,35 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as mammoth from "mammoth";
 import Uploader from "./components/Uploader";
 import ContractViewer from "./components/ContractViewer";
 import RiskPanel from "./components/RiskPanel";
 import AskQuestionsTab from "./components/AskQuestionsTab";
+import { supabase } from "./supabaseClient";
 import { btnStyle, RC } from "./utils/constants";
 
 export default function LexScan() {
+  const [contractHistory, setContractHistory] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const { data, error } = await supabase
+        .from('contract_history')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (!error && data) {
+        const mapped = data.map(item => ({
+           id: item.id,
+           fileName: item.filename,
+           date: item.created_at,
+           contractText: item.contract_text,
+           risks: item.risks_json
+        }));
+        setContractHistory(mapped);
+      }
+    };
+    fetchHistory();
+  }, []);
   const [contractText, setContractText] = useState("");
   const [fileName, setFileName]         = useState("");
   const [risks, setRisks]               = useState(null);
@@ -32,6 +55,7 @@ export default function LexScan() {
       setContractText(result.value);
     } else if (ext === "pdf") {
       const url = URL.createObjectURL(file);
+      // @ts-ignore
       if (!window.pdfjsLib) {
         await new Promise((res, rej) => {
           const s = document.createElement("script");
@@ -39,9 +63,11 @@ export default function LexScan() {
           s.onload = res; s.onerror = rej;
           document.head.appendChild(s);
         });
+        // @ts-ignore
         window.pdfjsLib.GlobalWorkerOptions.workerSrc =
           "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
       }
+      // @ts-ignore
       const pdf = await window.pdfjsLib.getDocument(url).promise;
       let text = "";
       for (let i = 1; i <= pdf.numPages; i++) {
@@ -51,37 +77,105 @@ export default function LexScan() {
       }
       URL.revokeObjectURL(url);
       setContractText(text.trim());
+    } else if (['png', 'jpg', 'jpeg'].includes(ext)) {
+      setContractText("Engaging OCR... extracting text from image pixels... (this takes about 5 - 15 seconds to download the language model & parse).");
+      setLoading(true);
+      try {
+         const Tesseract = await import('tesseract.js');
+         const result = await Tesseract.recognize(file, 'eng');
+         setContractText(result.data.text);
+      } catch (err) {
+         console.error(err);
+         alert("OCR extraction failed: " + err.message);
+         setContractText("");
+      } finally {
+         setLoading(false);
+      }
     } else {
-      alert("Unsupported file type. Please upload PDF, DOCX, or TXT.");
+      alert("Unsupported file type. Please upload PDF, DOCX, TXT, or Image.");
     }
   };
 
   // ── Analyze ──
   const analyze = async () => {
     if (!contractText.trim()) return;
-    setLoading(true); setRisks(null); setActiveRisk(null); setQaMessages([]);
+    setLoading(true); setRisks({ summary: "AI is reviewing the contract...", riskScore: 0, risks: [] }); setActiveRisk(null); setQaMessages([]);
     setView("results");
     setActiveTab("analyze");
+
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contractText })
       });
-      if (!response.ok) {
-        throw new Error(await response.text());
+      
+      let finalRisks = { summary: "", riskScore: 0, risks: [] };
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+           if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6).trim();
+              if (dataStr === '[DONE]') {
+                 setLoading(false);
+                 // Live Cloud Insertion via RPC PostgREST API
+                 supabase.from('contract_history').insert([{
+                    filename: fileName,
+                    contract_text: contractText,
+                    risk_score: finalRisks.riskScore || 0,
+                    risks_json: finalRisks
+                 }]).select().then(({ data, error }) => {
+                    if (data && data.length > 0) {
+                       const dbRow = data[0];
+                       setContractHistory(prev => [{
+                          id: dbRow.id,
+                          fileName: dbRow.filename,
+                          date: dbRow.created_at,
+                          contractText: dbRow.contract_text,
+                          risks: dbRow.risks_json
+                       }, ...prev]);
+                    }
+                 });
+                 return;
+              }
+              
+              try {
+                 const obj = JSON.parse(dataStr);
+                 if (obj.error) {
+                    alert("Groq API Error: " + obj.error);
+                    setLoading(false);
+                    return;
+                 }
+                 
+                 // Render dynamically!
+                 if (obj.type === "summary") {
+                    finalRisks.summary = obj.summary;
+                    finalRisks.riskScore = obj.riskScore;
+                    setRisks({ ...finalRisks });
+                    setLoading(false); // Drop the skeleton loaders immediately
+                 } else if (obj.type === "risk") {
+                    finalRisks.risks.push(obj);
+                    setRisks({ ...finalRisks });
+                 }
+              } catch(e) {
+                  // Ignore incomplete chunk parsing errors
+              }
+           }
+        }
       }
-      const parsed = await response.json();
-      
-      // Bubble backend errors correctly
-      if(parsed.error) throw new Error(parsed.error);
-      
-      setRisks(parsed);
     } catch (err) {
       console.error(err);
       alert("Analysis failed. Please try again. " + err.message);
       setView("input");
-    } finally {
       setLoading(false);
     }
   };
@@ -124,23 +218,56 @@ export default function LexScan() {
   const scoreColor = score > 70 ? "#E53935" : score > 40 ? "#FB8C00" : "#43A047";
 
   return (
-    <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", background: "#0B0D12", color: "#E8E4DC" }}>
-      <header style={{
-        borderBottom: "1px solid #222530", padding: "16px 32px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        background: "#0B0D12", position: "sticky", top: 0, zIndex: 200,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 7,
-            background: "linear-gradient(135deg,#C8A96E,#7A5C10)",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
-          }}>⚖️</div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: "0.07em", color: "#C8A96E" }}>LEXSCAN</div>
-            <div style={{ fontSize: 10, color: "#555A6A", letterSpacing: "0.14em", fontFamily: "system-ui,sans-serif" }}>AI CONTRACT RISK ANALYSIS</div>
+    <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", background: "#0B0D12", color: "#E8E4DC", display: "flex" }}>
+      
+      {/* Sidebar History */}
+      <div style={{ width: 260, background: "#0B0D12", borderRight: "1px solid #1E2028", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid #1E2028" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#C8A96E,#7A5C10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>⚖️</div>
+            <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.07em", color: "#C8A96E" }}>LEXSCAN</div>
           </div>
         </div>
+        <div style={{ padding: "16px 20px", fontSize: 11, fontWeight: 700, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "system-ui" }}>
+          HISTORY
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
+          {contractHistory.length === 0 && (
+            <div style={{ padding: "10px 8px", fontSize: 11, color: "#444750", fontFamily: "system-ui" }}>No saved history.</div>
+          )}
+          {contractHistory.map((item) => (
+            <div key={item.id} onClick={() => {
+               setContractText(item.contractText);
+               setFileName(item.fileName);
+               setRisks(item.risks);
+               setView("results");
+               setActiveTab("analyze");
+               setQaMessages([]);
+               setActiveRisk(null);
+            }} style={{
+               padding: "12px 14px", borderRadius: 8, cursor: "pointer", marginBottom: 6,
+               background: risks?.summary === item.risks?.summary ? "#13161D" : "transparent",
+               border: `1px solid ${risks?.summary === item.risks?.summary ? "#222530" : "transparent"}`,
+               transition: "all 0.2s"
+            }}>
+              <div style={{ fontSize: 12, color: "#D4CFCA", fontWeight: 600, fontFamily: "system-ui", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {item.fileName}
+              </div>
+              <div style={{ fontSize: 10, color: "#555A6A", fontFamily: "system-ui" }}>
+                {new Date(item.date).toLocaleDateString()} · Score: {item.risks.riskScore}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <header style={{
+          borderBottom: "1px solid #222530", padding: "16px 32px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: "#0B0D12", position: "sticky", top: 0, zIndex: 200,
+        }}>
+          <div></div>
 
         {view === "results" && (
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -238,8 +365,6 @@ export default function LexScan() {
             loading={loading}
             risks={risks}
             counts={counts}
-            score={score}
-            scoreColor={scoreColor}
             filterLevel={filterLevel}
             setFilterLevel={setFilterLevel}
             activeRisk={activeRisk}
@@ -249,6 +374,7 @@ export default function LexScan() {
           />
         </div>
       )}
+      </div>
     </div>
   );
 }

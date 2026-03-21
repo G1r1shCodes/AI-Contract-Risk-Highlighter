@@ -3,7 +3,7 @@ import { SAMPLE_CONTRACT } from '../utils/constants';
 
 export default function Uploader({ contractText, setContractText, fileName, setFileName, analyze, loading, extractText }) {
   const [dragOver, setDragOver] = useState(false);
-  const fileRef = useRef();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = async (e) => {
     e.preventDefault(); 
@@ -20,7 +20,7 @@ export default function Uploader({ contractText, setContractText, fileName, setF
           Spot Hidden Risks<br /><em style={{ color: "#C8A96E" }}>Before You Sign</em>
         </h1>
         <p style={{ color: "#6B6F7A", fontSize: 14, lineHeight: 1.7, fontFamily: "system-ui", maxWidth: 480, margin: "0 auto" }}>
-          Upload your contract (PDF, DOCX, or TXT), get an instant AI risk analysis, interactive clause highlighting, and ask questions in plain English.
+          Upload your contract (PDF, DOCX, TXT, PNG, or JPG), get an instant AI risk analysis, interactive clause highlighting, and ask questions in plain English.
         </p>
       </div>
 
@@ -40,8 +40,8 @@ export default function Uploader({ contractText, setContractText, fileName, setF
         <div style={{ color: "#C8A96E", fontSize: 14, fontFamily: "system-ui", fontWeight: 600, marginBottom: 6 }}>
           Drop your contract here
         </div>
-        <div style={{ color: "#555A6A", fontSize: 12, fontFamily: "system-ui" }}>PDF · DOCX · TXT &nbsp;·&nbsp; or click to browse</div>
-        <input ref={fileRef} type="file" accept=".pdf,.docx,.txt" onChange={(e) => e.target.files[0] && extractText(e.target.files[0])} style={{ display: "none" }} />
+        <div style={{ color: "#555A6A", fontSize: 12, fontFamily: "system-ui" }}>PDF · DOCX · TXT · PNG · JPG &nbsp;·&nbsp; or click to browse</div>
+        <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg" onChange={(e) => e.target.files[0] && extractText(e.target.files[0])} style={{ display: "none" }} />
       </div>
 
       {fileName && (
