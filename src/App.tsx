@@ -205,13 +205,34 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
                  }
                  
                  // Render dynamically!
-                 if (obj.type === "summary") {
-                    finalRisks.summary = obj.summary;
-                    finalRisks.riskScore = obj.riskScore;
+                 // Render dynamically with aggressive type-safety fallbacks
+                 const isSummary = obj.type === "summary" || obj.summary !== undefined;
+                 const isRisk = obj.type === "risk" || obj.quote !== undefined;
+
+                 if (isSummary) {
+                    finalRisks.summary = obj.summary || finalRisks.summary || "AI Contract Scan Complete.";
+                    
+                    // Force rigorous numeric parsing for riskScore
+                    let parsedScore = parseFloat(obj.riskScore || obj.score || obj.RiskScore || obj.risk_score || 0);
+                    if (isNaN(parsedScore)) parsedScore = 0;
+                    
+                    finalRisks.riskScore = parsedScore;
                     setRisks({ ...finalRisks });
                     setLoading(false); // Drop the skeleton loaders immediately
-                 } else if (obj.type === "risk") {
+                 } else if (isRisk) {
                     finalRisks.risks.push(obj);
+                    
+                    // Mathematical Risk Failsafe calculation (If Groq dropped the Risk Score globally)
+                    if (finalRisks.riskScore === 0 && finalRisks.summary !== "AI is reviewing the contract...") {
+                       let failsafeScore = 0;
+                       finalRisks.risks.forEach(r => {
+                          if (r.level?.toLowerCase() === 'high') failsafeScore += 25;
+                          if (r.level?.toLowerCase() === 'medium') failsafeScore += 10;
+                          if (r.level?.toLowerCase() === 'low') failsafeScore += 3;
+                       });
+                       finalRisks.riskScore = Math.min(failsafeScore, 100);
+                    }
+                    
                     setRisks({ ...finalRisks });
                  }
               } catch(e) {

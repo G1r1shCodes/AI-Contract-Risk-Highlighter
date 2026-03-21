@@ -6,6 +6,22 @@
     <title>LEXSCAN — AI Contract Risk Highlighter</title>
     <meta name="description" content="AI-powered contract risk analysis. Upload PDF, DOCX, or TXT contracts and get instant risk highlighting, scoring, and Q&A." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+      
+      @media print {
+        body { background: white !important; color: black !important; padding: 20px !important; }
+        /* Hide everything except the actual Risk components */
+        button, input, textarea { display: none !important; }
+        
+        /* Force scrollable containers to perfectly spill their heights for native A4 pagination */
+        #root, div { height: auto !important; overflow: visible !important; min-height: auto !important; position: static !important; }
+        
+        .risk-clause { page-break-inside: avoid; border: 1px solid #ddd !important; background: #fff !important; color: #000 !important; box-shadow: none !important; margin-bottom: 20px !important; }
+        .risk-score-box { border: 2px solid #000 !important; background: #fff !important; color: #000 !important; page-break-inside: avoid; }
+        h1, h2, h3, h4, span, div, p { color: black !important; }
+      }
+    </style>
   </head>
   <body style="margin:0;padding:0;background:#0B0D12;">
     <div id="root"></div>
