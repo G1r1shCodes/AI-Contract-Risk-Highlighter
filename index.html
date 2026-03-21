@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>LEXSCAN — AI Contract Risk Highlighter</title>
     <meta name="description" content="AI-powered contract risk analysis. Upload PDF, DOCX, or TXT contracts and get instant risk highlighting, scoring, and Q&A." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -126,6 +126,37 @@
       /* Consistent scrollbar in panel */
       .risk-panel-scroll::-webkit-scrollbar { width: 4px; }
       .risk-panel-scroll::-webkit-scrollbar-thumb { background: var(--border-main); border-radius: 2px; }
+
+      /* ── Mobile responsive overrides ── */
+      @media (max-width: 767px) {
+        /* Prevent iOS double-tap zoom on buttons */
+        button, a { touch-action: manipulation; }
+
+        /* Prevent zoom on input focus (font-size >= 16px) */
+        input, textarea, select {
+          font-size: 16px !important;
+        }
+
+        /* Safe area support for notched phones */
+        body {
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Make scrollbars invisible on mobile */
+        ::-webkit-scrollbar { width: 0; height: 0; }
+
+        /* Better tap highlight */
+        * { -webkit-tap-highlight-color: rgba(200, 169, 110, 0.15); }
+
+        /* Larger touch targets for mark highlights */
+        .contract-viewer mark { padding: 2px 3px !important; }
+
+        /* Bottom nav clearance */
+        .mobile-content-area { padding-bottom: 60px; }
+      }
+
+      /* iOS momentum scrolling */
+      .scroll-ios { -webkit-overflow-scrolling: touch; }
       
       @media print {
         body { background: white !important; color: black !important; padding: 20px !important; }

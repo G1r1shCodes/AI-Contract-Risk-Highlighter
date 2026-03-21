@@ -26,7 +26,7 @@ const STATIC_SUGGESTIONS = [
   "What are my confidentiality obligations after the contract ends?",
 ];
 
-export default function AskQuestionsTab({ qaMessages, qaInput, setQaInput, qaLoading, askQuestion, risks = [] }) {
+export default function AskQuestionsTab({ qaMessages, qaInput, setQaInput, qaLoading, askQuestion, risks = [], isMobile = false }) {
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { 
@@ -57,7 +57,7 @@ export default function AskQuestionsTab({ qaMessages, qaInput, setQaInput, qaLoa
   const hasMessages = qaMessages.length > 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 280px)", padding: "0 36px 20px" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, height: isMobile ? undefined : "calc(100vh - 280px)", padding: isMobile ? "0 14px 16px" : "0 36px 20px", overflow: isMobile ? "hidden" : undefined }}>
       <div ref={chatRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, paddingBottom: 16 }}>
         
         {/* Empty state with suggested questions */}
@@ -71,7 +71,7 @@ export default function AskQuestionsTab({ qaMessages, qaInput, setQaInput, qaLoa
               </div>
             </div>
             <div style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif", letterSpacing: "0.09em", fontWeight: 700, marginBottom: 10 }}>SUGGESTED QUESTIONS</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 8 }}>
               {suggestedQuestions.map((q, i) => (
                 <button key={i} onClick={() => askQuestion(q)}
                   disabled={qaLoading}

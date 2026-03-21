@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { RC } from '../utils/constants';
 
-export default function ContractViewer({ contractText, risks, activeRisk, setActiveRisk, filterLevel, loading }) {
+export default function ContractViewer({ contractText, risks, activeRisk, setActiveRisk, filterLevel, loading, isMobile = false }) {
   const segments = useMemo(() => {
     if (!risks?.length || !contractText) return [{ text: contractText, highlighted: false, risk: null }];
 
@@ -159,7 +159,7 @@ export default function ContractViewer({ contractText, risks, activeRisk, setAct
         </div>
       )}
 
-      <div className="contract-viewer" style={{ padding: '24px 28px 40px', fontSize: 13.5, lineHeight: 2.05, color: 'var(--text-main)', fontFamily: "'Lora', Georgia, serif", whiteSpace: 'pre-wrap', maxWidth: 820 }}>
+      <div className="contract-viewer" style={{ padding: isMobile ? '16px 14px 40px' : '24px 28px 40px', fontSize: isMobile ? 13 : 13.5, lineHeight: isMobile ? 1.9 : 2.05, color: 'var(--text-main)', fontFamily: "'Lora', Georgia, serif", whiteSpace: 'pre-wrap', maxWidth: 820 }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[100, 85, 95, 70, 90, 60, 80, 88, 75, 95, 65].map((w, i) => (

@@ -90,7 +90,7 @@ function generateReportHTML(contractText: string, risks: any, fileName: string) 
 </body></html>`;
 }
 
-export default function RiskPanel({ loading, risks, counts, filterLevel, setFilterLevel, activeRisk, setActiveRisk, contractText, fileName }) {
+export default function RiskPanel({ loading, risks, counts, filterLevel, setFilterLevel, activeRisk, setActiveRisk, contractText, fileName, isMobile = false }) {
   const downloadReport = () => {
     if (!risks) return;
     const html = generateReportHTML(contractText, risks, fileName);
@@ -109,7 +109,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
   // ── Loading state ──
   if (loading) {
     return (
-      <div style={{ width: 320, flexShrink: 0, background: 'var(--bg-panel)', borderLeft: '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+      <div style={{ width: isMobile ? '100%' : 320, flexShrink: isMobile ? 1 : 0, background: isMobile ? 'var(--bg-main)' : 'var(--bg-panel)', borderLeft: isMobile ? 'none' : '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border-main)' }}>
           <div className="skeleton" style={{ height: 11, width: '40%', marginBottom: 10 }} />
           <div style={{ display: 'flex', gap: 5 }}>
@@ -132,7 +132,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
   }
 
   return (
-    <div style={{ width: 320, flexShrink: 0, background: 'var(--bg-panel)', borderLeft: '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+    <div style={{ width: isMobile ? '100%' : 320, flexShrink: isMobile ? 1 : 0, background: isMobile ? 'var(--bg-main)' : 'var(--bg-panel)', borderLeft: isMobile ? 'none' : '1px solid var(--border-main)', display: 'flex', flexDirection: 'column', overflowY: 'auto', flex: isMobile ? 1 : undefined }}>
 
       {/* Panel header */}
       <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border-main)', flexShrink: 0 }}>
