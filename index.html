@@ -45,10 +45,58 @@
         transition: background-color 0.4s ease, color 0.4s ease;
       }
       
-      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: var(--border-main); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
       ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+      /* Focus rings */
+      input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--accent-gold) !important;
+        box-shadow: 0 0 0 2px rgba(200, 169, 110, 0.12) !important;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+
+      /* Button active press */
+      button:active:not(:disabled) { transform: scale(0.97); }
+
+      /* Selection highlight */
+      ::selection { background: rgba(200, 169, 110, 0.25); color: var(--text-main); }
+
+      /* Smooth anchor transitions */
+      * { box-sizing: border-box; }
+
+      /* Typing cursor blink */
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+
+      /* Skeleton shimmer */
+      @keyframes shimmer {
+        0% { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+      }
+      .skeleton {
+        background: linear-gradient(90deg, var(--bg-panel-hover) 25%, var(--border-main) 50%, var(--bg-panel-hover) 75%);
+        background-size: 400px 100%;
+        animation: shimmer 1.4s ease-in-out infinite;
+        border-radius: 6px;
+      }
+
+      /* Fade-in for cards */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .fade-up { animation: fadeUp 0.3s ease both; }
+
+      /* Smooth mark transition */
+      mark { transition: background 0.2s, color 0.2s; }
+
+      /* Contract text link-style highlighting */
+      mark:hover { filter: brightness(1.08); }
       
       @media print {
         body { background: white !important; color: black !important; padding: 20px !important; }

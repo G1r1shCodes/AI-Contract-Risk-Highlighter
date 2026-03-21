@@ -57,38 +57,56 @@ export default function Uploader({ contractText, setContractText, fileName, setF
       )}
 
       {/* Text area */}
-      <div style={{ background: "var(--bg-panel)", border: "1px solid var(--border-main)", borderRadius: 12, overflow: "hidden" }}>
-        <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-main)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: "var(--text-dim)", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>CONTRACT TEXT</span>
-          <button onClick={() => { setContractText(SAMPLE_CONTRACT); setFileName("sample_contract.txt"); }}
-            style={{ background: "none", border: "1px solid var(--border-light)", color: "var(--text-muted)", padding: "4px 11px", borderRadius: 5, cursor: "pointer", fontSize: 11, fontFamily: "'Inter', sans-serif" }}>
-            Load Sample
-          </button>
-        </div>
-        <textarea
-          value={contractText}
-          onChange={(e) => setContractText(e.target.value)}
-          placeholder="Or paste your contract text directly here…"
-          style={{
-            width: "100%", minHeight: 280, background: "transparent", border: "none",
-            color: "var(--text-main)", padding: "18px", fontSize: 13, lineHeight: 1.85, resize: "vertical",
-            outline: "none", boxSizing: "border-box", fontFamily: "Georgia,serif",
-          }}
-        />
-        <div style={{ padding: "12px 18px", borderTop: "1px solid var(--border-main)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif" }}>
-            {contractText ? `${contractText.split(/\s+/).filter(Boolean).length} words` : ""}
-          </span>
-          <button onClick={analyze} disabled={!contractText.trim() || loading}
+      <div style={{ background: "var(--bg-panel)", border: "1px solid var(--border-main)", borderRadius: 12, overflow: "hidden", transition: 'border-color 0.2s' }}>
+      <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border-main)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 11, color: "var(--text-dim)", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>CONTRACT TEXT</span>
+      {contractText && (
+        <span style={{ fontSize: 10, color: 'var(--accent-gold)', fontFamily: "'Inter', sans-serif", background: 'rgba(200,169,110,0.1)', padding: '2px 7px', borderRadius: 4 }}>
+            {contractText.split(/\s+/).filter(Boolean).length.toLocaleString()} words
+            </span>
+          )}
+      </div>
+      <button onClick={() => { setContractText(SAMPLE_CONTRACT); setFileName("sample_contract.txt"); }}
+        style={{ background: "none", border: "1px solid var(--border-light)", color: "var(--text-muted)", padding: "4px 11px", borderRadius: 5, cursor: "pointer", fontSize: 11, fontFamily: "'Inter', sans-serif", transition: 'all 0.15s' }}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent-gold)', e.currentTarget.style.color = 'var(--accent-gold)')}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-light)', e.currentTarget.style.color = 'var(--text-muted)')}>
+      Load Sample
+      </button>
+      </div>
+      <textarea
+        value={contractText}
+      onChange={(e) => setContractText(e.target.value)}
+      placeholder="Or paste your contract text directly here…"
+      style={{
+        width: "100%", minHeight: 280, background: "transparent", border: "none",
+      color: "var(--text-main)", padding: "18px", fontSize: 13, lineHeight: 1.85, resize: "vertical",
+      outline: "none", boxSizing: "border-box", fontFamily: "Georgia,serif",
+      }}
+      />
+      <div style={{ padding: "14px 18px", borderTop: "1px solid var(--border-main)", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 12 }}>
+      {contractText && !loading && (
+      <span style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: "'Inter', sans-serif" }}>
+        Ready to analyze ✓
+      </span>
+      )}
+        <button onClick={analyze} disabled={!contractText.trim() || loading}
             style={{
               background: !contractText.trim() || loading ? "var(--bg-panel-hover)" : "linear-gradient(135deg,var(--accent-gold),var(--accent-gold-dark))",
               color: !contractText.trim() || loading ? "var(--text-dim)" : "var(--bg-main)",
-              border: "none", padding: "11px 26px", borderRadius: 7,
+              border: 'none', padding: "12px 28px", borderRadius: 8,
               cursor: !contractText.trim() || loading ? "not-allowed" : "pointer",
-              fontSize: 12, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif",
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Inter', sans-serif",
               transition: "all 0.2s",
+              boxShadow: contractText.trim() && !loading ? '0 4px 16px rgba(200,169,110,0.25)' : 'none',
             }}>
-            {loading ? "⏳  ANALYZING…" : "ANALYZE RISKS →"}
+            {loading ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ display: 'inline-block', width: 12, height: 12, border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                ANALYZING…
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </span>
+            ) : 'ANALYZE RISKS →'}
           </button>
         </div>
       </div>

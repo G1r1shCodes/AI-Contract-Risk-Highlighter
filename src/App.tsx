@@ -257,33 +257,54 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
     }
   };
 
-  // ── Q&A ──
-  const askQuestion = async () => {
-    const q = qaInput.trim();
+  // ── Q&A with streaming ──
+  const askQuestion = async (overrideQ?: string) => {
+    const q = (overrideQ || qaInput).trim();
     if (!q || qaLoading) return;
     const newMsgs = [...qaMessages, { role: "user", content: q }];
-    setQaMessages(newMsgs); setQaInput(""); setQaLoading(true);
+    // Add placeholder assistant message for streaming
+    const withPlaceholder = [...newMsgs, { role: "assistant", content: "", streaming: true }];
+    setQaMessages(withPlaceholder); setQaInput(""); setQaLoading(true);
     try {
-      const history = newMsgs.map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n\n");
       const response = await fetch("/api/qa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contractText,
           risksSummary: risks?.summary || "",
-          history
+          messages: newMsgs.map(m => ({ role: m.role, content: m.content }))
         })
       });
-      if (!response.ok) {
-         throw new Error(await response.text());
+      if (!response.ok) throw new Error(await response.text());
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let fullAnswer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6).trim();
+            if (dataStr === '[DONE]') break;
+            try {
+              const obj = JSON.parse(dataStr);
+              if (obj.error) throw new Error(obj.error);
+              if (obj.token) {
+                fullAnswer += obj.token;
+                setQaMessages([...newMsgs, { role: "assistant", content: fullAnswer, streaming: true }]);
+              }
+            } catch(e) {}
+          }
+        }
       }
-      const parsed = await response.json();
-      if(parsed.error) throw new Error(parsed.error);
-      
-      setQaMessages([...newMsgs, { role: "assistant", content: parsed.answer }]);
+      setQaMessages([...newMsgs, { role: "assistant", content: fullAnswer, streaming: false }]);
     } catch (err) {
       console.error(err);
-      setQaMessages([...newMsgs, { role: "assistant", content: `Sorry, I couldn't process that: ${err.message}` }]);
+      setQaMessages([...newMsgs, { role: "assistant", content: `I encountered an error: ${err.message}. Please try again.`, streaming: false }]);
     } finally {
       setQaLoading(false);
     }
@@ -390,26 +411,60 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
             <div style={{ padding: "28px 36px 0" }}>
               {/* Score Banner */}
               <div style={{
-                background: "var(--bg-panel)", border: "1px solid var(--border-main)", borderRadius: 10,
-                padding: "18px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 20,
+                background: "var(--bg-panel)", border: "1px solid var(--border-main)", borderRadius: 12,
+                padding: "16px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 20,
+                boxShadow: loading ? 'none' : `0 0 0 1px ${scoreColor}18, 0 4px 24px ${scoreColor}0A`,
+                transition: 'box-shadow 0.5s',
               }}>
-                <div style={{ textAlign: "center", minWidth: 60 }}>
-                  <div style={{ fontSize: 36, fontWeight: 700, color: loading ? "#555" : scoreColor, lineHeight: 1, fontFamily: "'Inter', sans-serif", transition: "all 0.4s" }}>
-                     {loading ? "--" : score}
+                {/* Score ring */}
+                <div style={{ position: 'relative', width: 64, height: 64, flexShrink: 0 }}>
+                  <svg viewBox="0 0 64 64" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="var(--border-main)" strokeWidth="5" />
+                    <circle cx="32" cy="32" r="26" fill="none"
+                      stroke={loading ? 'var(--border-light)' : scoreColor}
+                      strokeWidth="5"
+                      strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 26}`}
+                      strokeDashoffset={`${2 * Math.PI * 26 * (1 - (loading ? 0 : score) / 100)}`}
+                      style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1), stroke 0.5s' }}
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: loading ? 'var(--text-dim)' : scoreColor, lineHeight: 1, fontFamily: "'Inter', sans-serif", transition: 'color 0.5s' }}>
+                      {loading ? '--' : score}
+                    </div>
+                    <div style={{ fontSize: 7, color: 'var(--text-dim)', letterSpacing: '0.1em', fontFamily: "'Inter', sans-serif", marginTop: 2 }}>RISK</div>
                   </div>
-                  <div style={{ fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.12em", fontFamily: "'Inter', sans-serif", marginTop: 3 }}>RISK SCORE</div>
                 </div>
-                <div style={{ width: 1, height: 40, background: "var(--border-main)" }} />
-                <div style={{ flex: 1, fontSize: 13, color: "var(--text-muted)", lineHeight: 1.65, fontFamily: "'Inter', sans-serif" }}>
-                   {loading ? "AI is generating compliance report... this takes about 5 - 15 seconds." : risks?.summary}
+
+                <div style={{ width: 1, height: 44, background: "var(--border-main)", flexShrink: 0 }} />
+
+                <div style={{ flex: 1, fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.65, fontFamily: "'Inter', sans-serif" }}>
+                  {loading ? (
+                    <>
+                      <div className="skeleton" style={{ height: 11, width: '85%', marginBottom: 7 }} />
+                      <div className="skeleton" style={{ height: 11, width: '60%' }} />
+                    </>
+                  ) : risks?.summary}
                 </div>
-                <div style={{ display: "flex", gap: 16 }}>
+
+                {/* Risk counters */}
+                <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
                   {["high","medium","low"].map((l) => (
-                    <div key={l} style={{ textAlign: "center", opacity: loading ? 0.4 : 1, transition: "opacity 0.4s" }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: loading ? "#555" : RC[l].dot, fontFamily: "'Inter', sans-serif", transition: "color 0.4s" }}>
-                         {loading ? "-" : counts[l]}
+                    <div key={l} style={{ textAlign: "center" }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 8, marginBottom: 4,
+                        background: loading ? 'var(--bg-panel-hover)' : `${RC[l].dot}18`,
+                        border: `1px solid ${loading ? 'var(--border-main)' : RC[l].dot + '44'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 16, fontWeight: 700,
+                        color: loading ? 'var(--text-dim)' : RC[l].dot,
+                        fontFamily: "'Inter', sans-serif",
+                        transition: 'all 0.4s',
+                      }}>
+                        {loading ? '-' : counts[l]}
                       </div>
-                      <div style={{ fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>{l.toUpperCase()}</div>
+                      <div style={{ fontSize: 8, color: "var(--text-dim)", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>{l.toUpperCase()}</div>
                     </div>
                   ))}
                 </div>
@@ -449,6 +504,7 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
                   setQaInput={setQaInput}
                   qaLoading={qaLoading}
                   askQuestion={askQuestion}
+                  risks={risks?.risks || []}
                />
             )}
           </div>

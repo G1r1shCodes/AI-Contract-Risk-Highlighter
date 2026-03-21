@@ -11,16 +11,30 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const systemPrompt = `You are a senior legal risk analyst. Analyze contracts and identify risky clauses.
-You MUST output strictly in JSONL (JSON Lines) format. Do not use an array. Do not use markdown backticks. Return ONLY raw JSON strings separated by newlines.
+  const systemPrompt = `You are a senior legal risk analyst specializing in commercial contract review. Your role is to protect the signing party by identifying clauses that create legal exposure, financial risk, or unfair obligations.
 
-Line 1 MUST be exactly this structure:
-{"type":"summary", "summary": "2-3 sentence overall risk assessment", "riskScore": <number>}
+CRITICAL RULES — FOLLOW EXACTLY:
+1. Output ONLY valid JSONL: one JSON object per line, no arrays, no markdown backticks, no prose
+2. NEVER invent or paraphrase clauses — quotes must be EXACT VERBATIM substrings from the contract
+3. Quotes must be 10–45 words. Copy the text character-for-character including punctuation
+4. Every risk must have a concrete, specific real-world consequence — not generic legal boilerplate
+5. Suggested fixes must be actionable alternative language, not vague advice
+6. Confidence reflects how clearly the clause is problematic (1.0 = unambiguously risky)
 
-Lines 2 through 10 MUST be exactly this structure (one line per risk):
-{"type":"risk", "id": <number>, "quote": "exact verbatim text from contract (10-35 words)", "level": "high|medium|low", "category": "Payment|IP|Liability|Termination|Confidentiality|Arbitration|Indemnity|Penalty|Ambiguity|Other", "title": "short risk title (4-6 words)", "explanation": "2-3 sentences: why risky"}
+─── LINE 1: SUMMARY (required, always first) ───
+{"type":"summary","summary":"2-3 sentence professional assessment naming the top 2-3 risks and their severity","riskScore":<integer 0-100>}
 
-Identify 6-12 risks. Only quote text that appears verbatim in the contract.`;
+riskScore guide: 0-30 = low risk, 31-60 = moderate, 61-80 = high risk, 81-100 = severe
+
+─── LINES 2+: RISKS (identify 6–12 risks) ───
+{"type":"risk","id":<n>,"quote":"verbatim contract text, 10-45 words, exact substring","level":"high|medium|low","category":"Payment|IP|Liability|Termination|Confidentiality|Arbitration|Indemnity|Penalty|Scope|Governing Law|Ambiguity","title":"4–6 word risk title","explanation":"1-2 sentences: what makes this clause legally dangerous","impact":"Specific real-world consequence: financial loss amount, IP forfeiture, legal liability exposure, operational disruption — be concrete","suggestedFix":"Specific alternative clause text or key negotiation point the signing party should demand","confidence":<number 0.5-1.0>,"clauseRef":"Section/clause number if visible in contract, else empty string"}
+
+RISK LEVEL CRITERIA:
+- high: Could cause major financial loss (>1 month fees), IP forfeiture, unlimited liability, or prevent legal recourse
+- medium: Unfavorable terms worth negotiating; creates disadvantage but not catastrophic
+- low: Minor ambiguity, slight imbalance, or standard-but-worth-noting language
+
+DO NOT output anything other than these JSONL lines. No explanations. No preamble. No markdown.`;
 
   const payload = {
     model: "llama-3.3-70b-versatile",

@@ -78,14 +78,28 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
   if (loading) {
     return (
       <div style={{ width: 340, overflowY: "auto", background: "var(--bg-main)", padding: "20px 16px" }}>
+        {/* Filter pill skeletons */}
         <div style={{ display: "flex", gap: 5, marginBottom: 16 }}>
-           {[1,2,3,4].map(i => <div key={i} style={{ flex: 1, height: 26, background: "var(--bg-panel-hover)", borderRadius: 6, animation: "pulse 1.5s infinite ease-in-out" }} />)}
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ flex: 1, height: 28 }} />)}
         </div>
-        <div style={{ height: 100, background: "var(--bg-panel-hover)", borderRadius: 10, animation: "pulse 1.5s infinite ease-in-out", marginBottom: 20 }} />
+        {/* Report button skeleton */}
+        <div className="skeleton" style={{ height: 34, marginBottom: 16, borderRadius: 6 }} />
+        {/* Summary card skeleton */}
+        <div style={{ background: "var(--bg-panel)", border: "1px solid var(--border-main)", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+          <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 10 }} />
+          <div className="skeleton" style={{ height: 10, width: '90%', marginBottom: 6 }} />
+          <div className="skeleton" style={{ height: 10, width: '75%', marginBottom: 6 }} />
+          <div className="skeleton" style={{ height: 10, width: '50%' }} />
+        </div>
+        {/* Risk card skeletons */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {[1,2,3,4,5].map(i => <div key={i} style={{ height: 60, background: "var(--bg-panel)", borderRadius: 8, animation: "pulse 1.5s infinite ease-in-out" }} />)}
+          {[1,2,3,4,5,6].map(i => (
+            <div key={i} style={{ background: "var(--bg-panel)", borderRadius: 8, padding: "10px 12px", borderLeft: "3px solid var(--border-light)" }}>
+              <div className="skeleton" style={{ height: 11, width: `${60 + (i * 7) % 30}%`, marginBottom: 7 }} />
+              <div className="skeleton" style={{ height: 9, width: `${35 + (i * 11) % 25}%` }} />
+            </div>
+          ))}
         </div>
-        <style dangerouslySetInnerHTML={{__html: `@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }`}} />
       </div>
     );
   }
@@ -115,28 +129,66 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
           </button>
       )}
 
-      {/* Active detail card */}
+      {/* Active detail card — Full actionable insight */}
       {activeRisk && (
         <div style={{
-          background: RC[activeRisk.level].badge,
+          background: "var(--bg-panel)",
           border: `1px solid ${RC[activeRisk.level].border}`,
-          borderRadius: 10, padding: "14px", marginBottom: 14,
+          borderRadius: 10, padding: "16px", marginBottom: 14,
           boxShadow: `0 4px 24px ${RC[activeRisk.level].glow}`,
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#111", fontFamily: "'Inter', sans-serif" }}>{activeRisk.title}</span>
-            <button onClick={() => setActiveRisk(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 15, padding: 0 }}>×</button>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-main)", fontFamily: "'Inter', sans-serif", marginBottom: 5 }}>{activeRisk.title}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, background: RC[activeRisk.level].border, color: "#fff", padding: "2px 8px", borderRadius: 4, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif" }}>
+                  {activeRisk.level.toUpperCase()}
+                </span>
+                <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif" }}>{activeRisk.category}</span>
+                {activeRisk.clauseRef && <span style={{ fontSize: 10, color: "var(--accent-gold)", fontFamily: "'Inter', sans-serif" }}>{activeRisk.clauseRef}</span>}
+              </div>
+            </div>
+            <button onClick={() => setActiveRisk(null)} style={{ background: "var(--bg-panel-hover)", border: "1px solid var(--border-main)", cursor: "pointer", color: "var(--text-dim)", fontSize: 14, borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>×</button>
           </div>
-          <div style={{ background: "#fff", borderRadius: 6, padding: "8px 10px", fontSize: 11, color: "#444", fontStyle: "italic", marginBottom: 10, lineHeight: 1.5, fontFamily: "Georgia,serif" }}>
-            "{activeRisk.quote}"
+
+          {/* Contract quote */}
+          <div style={{ background: RC[activeRisk.level].badge, borderLeft: `3px solid ${RC[activeRisk.level].border}`, borderRadius: "0 6px 6px 0", padding: "8px 10px", fontSize: 11, color: "#333", fontStyle: "italic", marginBottom: 10, lineHeight: 1.55, fontFamily: "Georgia,serif" }}>
+            “{activeRisk.quote}”
           </div>
-          <div style={{ fontSize: 11, color: "#333", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" }}>{activeRisk.explanation}</div>
-          <div style={{ marginTop: 10 }}>
-            <span style={{ fontSize: 10, background: RC[activeRisk.level].border, color: "#fff", padding: "2px 8px", borderRadius: 4, fontFamily: "'Inter', sans-serif", fontWeight: 700, marginRight: 6 }}>
-              {activeRisk.level.toUpperCase()}
-            </span>
-            <span style={{ fontSize: 10, color: "#888", fontFamily: "'Inter', sans-serif" }}>{activeRisk.category}</span>
+
+          {/* Why it's risky */}
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.09em", color: "var(--text-dim)", fontFamily: "'Inter', sans-serif", marginBottom: 4 }}>WHY IT’S RISKY</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" }}>{activeRisk.explanation}</div>
           </div>
+
+          {/* Real-world impact */}
+          {activeRisk.impact && (
+            <div style={{ marginBottom: 10, background: "rgba(229,57,53,0.06)", border: "1px solid rgba(229,57,53,0.15)", borderRadius: 6, padding: "8px 10px" }}>
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.09em", color: "#E53935", fontFamily: "'Inter', sans-serif", marginBottom: 4 }}>⚠️ REAL-WORLD IMPACT</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" }}>{activeRisk.impact}</div>
+            </div>
+          )}
+
+          {/* Suggested fix */}
+          {activeRisk.suggestedFix && (
+            <div style={{ marginBottom: 10, background: "rgba(67,160,71,0.06)", border: "1px solid rgba(67,160,71,0.2)", borderRadius: 6, padding: "8px 10px" }}>
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.09em", color: "#43A047", fontFamily: "'Inter', sans-serif", marginBottom: 4 }}>✅ SUGGESTED FIX</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" }}>{activeRisk.suggestedFix}</div>
+            </div>
+          )}
+
+          {/* Confidence bar */}
+          {activeRisk.confidence && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+              <span style={{ fontSize: 9, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>AI CONFIDENCE</span>
+              <div style={{ flex: 1, height: 4, background: "var(--bg-panel-hover)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.round(activeRisk.confidence * 100)}%`, background: `linear-gradient(90deg, ${RC[activeRisk.level].border}, ${RC[activeRisk.level].dot})`, borderRadius: 2, transition: "width 0.4s ease" }} />
+              </div>
+              <span style={{ fontSize: 9, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif", minWidth: 28 }}>{Math.round((activeRisk.confidence || 0) * 100)}%</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -158,13 +210,20 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
                 border: `1px solid ${isActive ? c.border : "var(--bg-panel-hover)"}`,
                 borderLeft: `3px solid ${c.dot}`,
                 borderRadius: 8, padding: "10px 12px",
-                cursor: "pointer", transition: "border 0.15s, background 0.15s",
+                cursor: "pointer", transition: "all 0.15s",
               }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-main)", fontFamily: "'Inter', sans-serif" }}>{risk.title}</span>
-                  <span style={{ fontSize: 9, color: c.dot, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Inter', sans-serif" }}>{risk.level.toUpperCase()}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-main)", fontFamily: "'Inter', sans-serif", lineHeight: 1.4, flex: 1, marginRight: 6 }}>{risk.title}</span>
+                  <span style={{ fontSize: 8, fontWeight: 700, background: c.dot, color: '#fff', padding: '2px 6px', borderRadius: 3, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif", flexShrink: 0 }}>{risk.level.toUpperCase()}</span>
                 </div>
-                <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif", letterSpacing: "0.05em" }}>{risk.category}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif" }}>{risk.category}{risk.clauseRef ? ` · ${risk.clauseRef}` : ''}</span>
+                  {risk.confidence && (
+                    <span style={{ fontSize: 9, color: c.dot, fontFamily: "'Inter', sans-serif", opacity: 0.8 }}>
+                      {Math.round(risk.confidence * 100)}%
+                    </span>
+                  )}
+                </div>
               </motion.div>
             );
           })}
