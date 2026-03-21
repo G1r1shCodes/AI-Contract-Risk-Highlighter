@@ -71,10 +71,10 @@ export default function ContractViewer({ contractText, risks, activeRisk, setAct
   }, [contractText, risks, filterLevel]);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "28px 36px", borderRight: "1px solid #1E2028" }}>
-      <div style={{ fontSize: 13.5, lineHeight: 2, color: "#BDB8B0", fontFamily: "Georgia,serif", whiteSpace: "pre-wrap" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "28px 36px", borderRight: "1px solid var(--border-main)" }}>
+      <div style={{ fontSize: 13.5, lineHeight: 2, color: "var(--text-main)", fontFamily: "Georgia,serif", whiteSpace: "pre-wrap" }}>
         {loading ? (
-             <div style={{ color: '#555A6A' }}>AI is extracting contract intelligence...</div>
+             <div style={{ color: 'var(--text-dim)' }}>AI is extracting contract intelligence...</div>
         ) : segments?.map((seg, i) => {
           if (!seg.highlighted) return <span key={i}>{seg.text}</span>;
           const c = RC[seg.risk.level];

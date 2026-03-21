@@ -25,13 +25,13 @@ export default function AskQuestionsTab({ qaMessages, qaInput, setQaInput, qaLoa
           <div key={i} style={{
             alignSelf: m.role === "user" ? "flex-end" : "flex-start",
             maxWidth: "82%",
-            background: m.role === "user" ? "linear-gradient(135deg, rgba(200,169,110,0.15), rgba(139,105,20,0.05))" : "rgba(30,32,40,0.4)",
+            background: m.role === "user" ? "linear-gradient(135deg, rgba(200,169,110,0.15), rgba(139,105,20,0.05))" : "var(--bg-panel)",
             color: m.role === "user" ? "var(--text-main)" : "var(--text-main)",
             border: `1px solid ${m.role === "user" ? "rgba(200,169,110,0.3)" : "var(--glass-border)"}`,
             borderRadius: m.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
             padding: "12px 18px",
             fontSize: 13, lineHeight: 1.65, fontFamily: "'Inter', sans-serif",
-            boxShadow: m.role === "user" ? "0 8px 32px rgba(200,169,110,0.05)" : "0 4px 16px rgba(0,0,0,0.2)"
+            boxShadow: m.role === "user" ? "0 8px 32px rgba(200,169,110,0.05)" : "0 4px 16px var(--glass-border)"
           }}>{m.content}</div>
         ))}
         {qaLoading && (

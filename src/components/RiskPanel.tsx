@@ -79,11 +79,11 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
     return (
       <div style={{ width: 340, overflowY: "auto", background: "var(--bg-main)", padding: "20px 16px" }}>
         <div style={{ display: "flex", gap: 5, marginBottom: 16 }}>
-           {[1,2,3,4].map(i => <div key={i} style={{ flex: 1, height: 26, background: "#181A22", borderRadius: 6, animation: "pulse 1.5s infinite ease-in-out" }} />)}
+           {[1,2,3,4].map(i => <div key={i} style={{ flex: 1, height: 26, background: "var(--bg-panel-hover)", borderRadius: 6, animation: "pulse 1.5s infinite ease-in-out" }} />)}
         </div>
-        <div style={{ height: 100, background: "#181A22", borderRadius: 10, animation: "pulse 1.5s infinite ease-in-out", marginBottom: 20 }} />
+        <div style={{ height: 100, background: "var(--bg-panel-hover)", borderRadius: 10, animation: "pulse 1.5s infinite ease-in-out", marginBottom: 20 }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {[1,2,3,4,5].map(i => <div key={i} style={{ height: 60, background: "#141720", borderRadius: 8, animation: "pulse 1.5s infinite ease-in-out" }} />)}
+          {[1,2,3,4,5].map(i => <div key={i} style={{ height: 60, background: "var(--bg-panel)", borderRadius: 8, animation: "pulse 1.5s infinite ease-in-out" }} />)}
         </div>
         <style dangerouslySetInnerHTML={{__html: `@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }`}} />
       </div>
@@ -154,7 +154,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 120 }}
                 key={risk.id} onClick={() => setActiveRisk(isActive ? null : risk)} style={{
-                background: isActive ? "var(--bg-panel-hover)" : "#111420",
+                background: isActive ? "var(--bg-panel-hover)" : "var(--bg-panel)",
                 border: `1px solid ${isActive ? c.border : "var(--bg-panel-hover)"}`,
                 borderLeft: `3px solid ${c.dot}`,
                 borderRadius: 8, padding: "10px 12px",

@@ -299,8 +299,8 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
     <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", color: "var(--text-main)", display: "flex", position: "relative" }}>
       <BackgroundGlow />
       {/* Sidebar History */}
-      <div style={{ width: 260, background: "rgba(11, 13, 18, 0.6)", backdropFilter: "blur(20px)", borderRight: "1px solid var(--glass-border)", display: "flex", flexDirection: "column", zIndex: 10 }}>
-        <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+      <div style={{ width: 260, background: "var(--glass-bg)", backdropFilter: "blur(20px)", borderRight: "1px solid var(--glass-border)", display: "flex", flexDirection: "column", zIndex: 10 }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--glass-border)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,var(--accent-gold),#7A5C10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>⚖️</div>
             <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.07em", color: "var(--accent-gold)" }}>LEXSCAN</div>
@@ -346,7 +346,7 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", zIndex: 10 }}>
         <header style={{
-          borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "16px 32px",
+          borderBottom: "1px solid var(--glass-border)", padding: "16px 32px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           background: "var(--glass-bg)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 200,
         }}>
@@ -496,7 +496,7 @@ export default function App() {
       <LexScan user={session?.user} setShowAuth={setShowAuth} />
       
       {showAuth && !session && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--glass-bg)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ position: 'relative' }}>
             <button onClick={() => setShowAuth(false)} style={{ position: 'absolute', top: 18, right: 18, background: 'var(--bg-panel-hover)', border: '1px solid var(--border-light)', color: 'var(--text-muted)', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, fontSize: 18 }}>×</button>
             <Auth />
