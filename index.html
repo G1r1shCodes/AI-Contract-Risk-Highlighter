@@ -7,7 +7,7 @@
     <meta name="description" content="AI-powered contract risk analysis. Upload PDF, DOCX, or TXT contracts and get instant risk highlighting, scoring, and Q&A." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
       
       :root {
         --bg-main: #0B0D12;
@@ -25,18 +25,19 @@
       }
 
       body.light-theme {
-        --bg-main: #E2E8F0; /* Deepen backing so White panels strictly pop */
+        /* Warm parchment — legal-document feel, complements gold accent */
+        --bg-main: #F5F3EE;
         --bg-panel: #FFFFFF;
-        --bg-panel-hover: #F1F5F9;
-        --border-main: #94A3B8; /* Much darker structural lines */
-        --border-light: #CBD5E1;
-        --text-main: #0F172A;
-        --text-muted: #1E293B;
-        --text-dim: #334155;
-        --accent-gold: #B48530;
-        --accent-gold-dark: #7A5313;
-        --glass-bg: rgba(255, 255, 255, 0.95);
-        --glass-border: rgba(0, 0, 0, 0.18); /* Strong physical outlines */
+        --bg-panel-hover: #F9F7F4;
+        --border-main: #DDD8CF;
+        --border-light: #E8E4DC;
+        --text-main: #1A1714;
+        --text-muted: #3D3830;
+        --text-dim: #857F76;
+        --accent-gold: #9A6F2E;
+        --accent-gold-dark: #6B4D1F;
+        --glass-bg: rgba(245, 243, 238, 0.97);
+        --glass-border: rgba(0, 0, 0, 0.10);
       }
 
       body {
@@ -92,11 +93,39 @@
       }
       .fade-up { animation: fadeUp 0.3s ease both; }
 
-      /* Smooth mark transition */
-      mark { transition: background 0.2s, color 0.2s; }
+      /* ── Mark / highlight overrides ── */
+      mark {
+        background: inherit;
+        color: inherit;
+        transition: background 0.18s, box-shadow 0.18s;
+        border-radius: 2px;
+      }
+      mark:hover { filter: brightness(0.90); cursor: pointer; }
 
-      /* Contract text link-style highlighting */
-      mark:hover { filter: brightness(1.08); }
+      /* Guaranteed visible highlights in both themes */
+      .contract-viewer mark[data-level="high"]   { background: rgba(229,57,53,0.16)  !important; border-bottom: 2.5px solid #E53935 !important; color: inherit !important; }
+      .contract-viewer mark[data-level="medium"] { background: rgba(251,140,0,0.15)  !important; border-bottom: 2.5px solid #FB8C00 !important; color: inherit !important; }
+      .contract-viewer mark[data-level="low"]    { background: rgba(30,136,229,0.13) !important; border-bottom: 2.5px solid #1E88E5 !important; color: inherit !important; }
+      .contract-viewer mark.active[data-level="high"]   { background: #E53935 !important; color: #fff !important; }
+      .contract-viewer mark.active[data-level="medium"] { background: #FB8C00 !important; color: #fff !important; }
+      .contract-viewer mark.active[data-level="low"]    { background: #1E88E5 !important; color: #fff !important; }
+
+      /* ── Interactive hover states ── */
+      /* Sidebar history items */
+      [data-sidebar-item]:hover { background: var(--bg-panel) !important; }
+
+      /* Smooth font rendering */
+      body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+      /* Tab underline animation */
+      button[data-tab] { position: relative; }
+
+      /* Contract viewer paragraph spacing */
+      .contract-viewer { max-width: 100%; }
+
+      /* Consistent scrollbar in panel */
+      .risk-panel-scroll::-webkit-scrollbar { width: 4px; }
+      .risk-panel-scroll::-webkit-scrollbar-thumb { background: var(--border-main); border-radius: 2px; }
       
       @media print {
         body { background: white !important; color: black !important; padding: 20px !important; }

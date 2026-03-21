@@ -127,9 +127,39 @@ export default function ContractViewer({ contractText, risks, activeRisk, setAct
     return segs;
   }, [contractText, risks, filterLevel]);
 
+  // Count highlights per level for the legend
+  const highlightCounts = useMemo(() => {
+    const c = { high: 0, medium: 0, low: 0 };
+    segments.forEach(s => { if (s.highlighted && s.risk?.level) c[s.risk.level]++; });
+    return c;
+  }, [segments]);
+
+  const totalHighlights = highlightCounts.high + highlightCounts.medium + highlightCounts.low;
+
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "28px 36px", borderRight: "1px solid var(--border-main)" }}>
-      <div style={{ fontSize: 13.5, lineHeight: 2, color: "var(--text-main)", fontFamily: "Georgia,serif", whiteSpace: "pre-wrap" }}>
+    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      {/* Highlight legend bar */}
+      {!loading && totalHighlights > 0 && (
+        <div style={{ padding: '7px 24px', borderBottom: '1px solid var(--border-main)', display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-main)', flexShrink: 0 }}>
+          <span style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: "'Inter',sans-serif", letterSpacing: '0.07em', fontWeight: 600 }}>
+            {totalHighlights} FLAGGED
+          </span>
+          <div style={{ display: 'flex', gap: 10 }}>
+            {(['high','medium','low'] as const).filter(l => highlightCounts[l] > 0).map(l => (
+              <button
+                key={l}
+                onClick={() => {/* could sync filter */}}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontFamily: "'Inter',sans-serif", color: RC[l].dot, fontWeight: 600, background: 'none', border: 'none', cursor: 'default', padding: 0 }}>
+                <span style={{ width: 7, height: 7, borderRadius: 2, background: RC[l].dot, display: 'inline-block' }} />
+                {highlightCounts[l]} {l}
+              </button>
+            ))}
+          </div>
+          <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--text-dim)', fontFamily: "'Inter',sans-serif" }}>Click highlighted text for details</span>
+        </div>
+      )}
+
+      <div className="contract-viewer" style={{ padding: '24px 28px 40px', fontSize: 13.5, lineHeight: 2.05, color: 'var(--text-main)', fontFamily: "'Lora', Georgia, serif", whiteSpace: 'pre-wrap', maxWidth: 820 }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[100, 85, 95, 70, 90, 60, 80, 88, 75, 95, 65].map((w, i) => (
@@ -147,22 +177,25 @@ export default function ContractViewer({ contractText, risks, activeRisk, setAct
           return (
             <mark
               key={i}
-              title={`${seg.risk.title} (${seg.risk.level.toUpperCase()}) — click for details`}
+              data-level={seg.risk.level}
+              className={isActive ? 'active' : ''}
+              title={`${seg.risk.title} (➔ click for details)`}
               onClick={() => setActiveRisk(isActive ? null : seg.risk)}
               style={{
                 background: isActive ? c.border : c.bg,
-                color: isActive ? "#fff" : "#111",
-                borderBottom: `2px solid ${c.border}`,
-                borderRadius: 3, padding: "1px 3px",
-                cursor: "pointer",
-                boxShadow: isActive ? `0 2px 12px ${c.glow}` : 'none',
+                color: isActive ? '#fff' : 'var(--text-main)',
+                borderBottom: `2.5px solid ${c.border}`,
+                borderRadius: 3,
+                padding: '1px 2px',
+                cursor: 'pointer',
+                boxShadow: isActive ? `0 2px 10px ${c.glow}` : undefined,
               }}>
-              {seg.text}
-              <sup style={{
-                fontSize: 8, marginLeft: 2,
-                background: c.border, color: "#fff",
-                borderRadius: 3, padding: "1px 4px", fontFamily: "system-ui",
-                fontWeight: 700,
+              {seg.text}<sup style={{
+                fontSize: 8, marginLeft: 1,
+                background: isActive ? 'rgba(255,255,255,0.3)' : c.border,
+                color: '#fff',
+                borderRadius: 3, padding: '0px 3px', fontFamily: 'system-ui',
+                fontWeight: 700, verticalAlign: 'super', lineHeight: 1,
               }}>{seg.risk.level[0].toUpperCase()}</sup>
             </mark>
           );

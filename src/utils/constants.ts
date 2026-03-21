@@ -27,9 +27,10 @@ All disputes shall be resolved through binding arbitration in Company's home jur
 This Agreement shall be governed by the laws of the State of Delaware.`;
 
 export const RC = {
-  high:   { bg: "#FFF0F0", border: "#E53935", text: "#B71C1C", dot: "#E53935", badge: "#FFEBEE", glow: "rgba(229,57,53,0.18)" },
-  medium: { bg: "#FFFBF0", border: "#FB8C00", text: "#E65100", dot: "#FB8C00", badge: "#FFF3E0", glow: "rgba(251,140,0,0.18)" },
-  low:    { bg: "#F0F7FF", border: "#1E88E5", text: "#0D47A1", dot: "#1E88E5", badge: "#E3F2FD", glow: "rgba(30,136,229,0.18)" },
+  // bg uses rgba so highlights are VISIBLE in both dark and light themes
+  high:   { bg: "rgba(229,57,53,0.14)",   border: "#E53935", text: "#B71C1C", dot: "#E53935", badge: "#FFEBEE", glow: "rgba(229,57,53,0.20)" },
+  medium: { bg: "rgba(251,140,0,0.13)",   border: "#FB8C00", text: "#E65100", dot: "#FB8C00", badge: "#FFF3E0", glow: "rgba(251,140,0,0.20)" },
+  low:    { bg: "rgba(30,136,229,0.11)",  border: "#1E88E5", text: "#0D47A1", dot: "#1E88E5", badge: "#E3F2FD", glow: "rgba(30,136,229,0.18)" },
 };
 
 export function btnStyle(bg, border, color, outlined = false) {
