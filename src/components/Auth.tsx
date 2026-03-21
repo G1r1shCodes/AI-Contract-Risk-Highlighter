@@ -25,10 +25,10 @@ export default function Auth() {
   return (
     <div style={{ backgroundColor: 'transparent', color: '#fff', fontFamily: 'system-ui' }}>
       <form onSubmit={handleAuth} style={{ padding: '40px', background: '#0D0F14', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 24px 64px rgba(0,0,0,0.8)', width: '380px' }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 500, letterSpacing: '-0.02em', color: '#C8A96E' }}>
+        <h2 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--accent-gold)' }}>
           {mode === 'login' ? 'Sign in to LexScan' : 'Create an Account'}
         </h2>
-        <p style={{ margin: '0 0 32px', color: '#6B6F7A', fontSize: 13 }}>
+        <p style={{ margin: '0 0 32px', color: 'var(--text-dim)', fontSize: 13 }}>
           Analyze and persist your secure contract history entirely isolated in the cloud.
         </p>
         
@@ -49,11 +49,11 @@ export default function Auth() {
           style={{ width: '100%', padding: '14px 16px', marginBottom: '24px', boxSizing: 'border-box', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', transition: 'border-color 0.2s' }}
         />
         
-        <button disabled={loading} style={{ width: '100%', padding: '14px', background: '#C8A96E', color: '#0A0A0B', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: 15, cursor: 'pointer', transition: 'all 0.2s', opacity: loading ? 0.7 : 1 }}>
+        <button disabled={loading} style={{ width: '100%', padding: '14px', background: 'var(--accent-gold)', color: '#0A0A0B', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: 15, cursor: 'pointer', transition: 'all 0.2s', opacity: loading ? 0.7 : 1 }}>
           {loading ? 'Authenticating...' : (mode === 'login' ? 'Sign In' : 'Sign Up')}
         </button>
 
-        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: 13, color: '#6B6F7A' }}>
+        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: 13, color: 'var(--text-dim)' }}>
           {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
           <span style={{ color: '#fff', cursor: 'pointer', fontWeight: 500 }} onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
             {mode === 'login' ? 'Sign up' : 'Sign in'}

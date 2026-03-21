@@ -25,19 +25,19 @@ function generateReportHTML(contractText, risks, fileName) {
 <div style="max-width:900px;margin:40px auto;background:#fff;border:1px solid #ddd">
   <div style="background:#0D0F14;padding:36px 48px;display:flex;justify-content:space-between;align-items:center">
     <div>
-      <div style="color:#C8A96E;font-size:22px;font-weight:700;letter-spacing:0.08em">LEXSCAN</div>
-      <div style="color:#6B6F7A;font-size:11px;letter-spacing:0.15em;font-family:system-ui;margin-top:3px">AI CONTRACT RISK ANALYSIS REPORT</div>
+      <div style="color:var(--accent-gold);font-size:22px;font-weight:700;letter-spacing:0.08em">LEXSCAN</div>
+      <div style="color:var(--text-dim);font-size:11px;letter-spacing:0.15em;font-family:system-ui;margin-top:3px">AI CONTRACT RISK ANALYSIS REPORT</div>
     </div>
     <div style="text-align:right">
-      <div style="color:#9A9DB0;font-size:12px;font-family:system-ui">${now}</div>
-      <div style="color:#6B6F7A;font-size:11px;font-family:system-ui;margin-top:2px">${fileName || "Contract Analysis"}</div>
+      <div style="color:var(--text-muted);font-size:12px;font-family:system-ui">${now}</div>
+      <div style="color:var(--text-dim);font-size:11px;font-family:system-ui;margin-top:2px">${fileName || "Contract Analysis"}</div>
     </div>
   </div>
   <div style="padding:40px 48px">
     <div style="display:flex;gap:24px;margin-bottom:36px;align-items:stretch">
       <div style="flex:0 0 120px;background:#0D0F14;border-radius:10px;padding:24px;text-align:center">
         <div style="font-size:52px;font-weight:700;color:${scoreColor};line-height:1;font-family:system-ui">${score}</div>
-        <div style="color:#6B6F7A;font-size:10px;letter-spacing:0.12em;font-family:system-ui;margin-top:6px">RISK SCORE</div>
+        <div style="color:var(--text-dim);font-size:10px;letter-spacing:0.12em;font-family:system-ui;margin-top:6px">RISK SCORE</div>
       </div>
       <div style="flex:1;background:#f9f8f5;border-radius:10px;padding:20px 24px;border-left:3px solid ${scoreColor}">
         <div style="font-size:13px;color:#555;line-height:1.7;font-family:system-ui">${risks.summary}</div>
@@ -46,7 +46,7 @@ function generateReportHTML(contractText, risks, fileName) {
         </div>
       </div>
     </div>
-    <h2 style="font-size:16px;color:#1a1a1a;letter-spacing:0.05em;margin-bottom:16px;border-bottom:2px solid #C8A96E;padding-bottom:8px">IDENTIFIED RISK CLAUSES</h2>
+    <h2 style="font-size:16px;color:#1a1a1a;letter-spacing:0.05em;margin-bottom:16px;border-bottom:2px solid var(--accent-gold);padding-bottom:8px">IDENTIFIED RISK CLAUSES</h2>
     <table style="width:100%;border-collapse:collapse;margin-bottom:40px">
       <thead><tr style="background:#f0ede8">
         <th style="padding:10px 14px;text-align:left;font-size:11px;letter-spacing:0.08em;color:#555;font-family:system-ui">RISK</th>
@@ -77,7 +77,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
 
   if (loading) {
     return (
-      <div style={{ width: 340, overflowY: "auto", background: "#0B0D12", padding: "20px 16px" }}>
+      <div style={{ width: 340, overflowY: "auto", background: "var(--bg-main)", padding: "20px 16px" }}>
         <div style={{ display: "flex", gap: 5, marginBottom: 16 }}>
            {[1,2,3,4].map(i => <div key={i} style={{ flex: 1, height: 26, background: "#181A22", borderRadius: 6, animation: "pulse 1.5s infinite ease-in-out" }} />)}
         </div>
@@ -91,15 +91,15 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
   }
 
   return (
-    <div style={{ width: 340, overflowY: "auto", background: "#0B0D12", padding: "20px 16px" }}>
+    <div style={{ width: 340, overflowY: "auto", background: "var(--bg-main)", padding: "20px 16px" }}>
       {/* Filter pills */}
       <div style={{ display: "flex", gap: 5, marginBottom: 16 }}>
         {["all","high","medium","low"].map((f) => (
           <button key={f} onClick={() => { setFilterLevel(f); setActiveRisk(null); }} style={{
             flex: 1, padding: "6px 4px",
-            background: filterLevel === f ? (f === "all" ? "#C8A96E" : RC[f]?.dot) : "#13161D",
-            color: filterLevel === f ? (f === "all" ? "#0B0D12" : "#fff") : "#555A6A",
-            border: `1px solid ${filterLevel === f ? "transparent" : "#1E2028"}`,
+            background: filterLevel === f ? (f === "all" ? "var(--accent-gold)" : RC[f]?.dot) : "var(--bg-panel)",
+            color: filterLevel === f ? (f === "all" ? "var(--bg-main)" : "#fff") : "var(--text-dim)",
+            border: `1px solid ${filterLevel === f ? "transparent" : "var(--bg-panel-hover)"}`,
             borderRadius: 6, cursor: "pointer",
             fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Inter', sans-serif",
             transition: "all 0.15s",
@@ -110,7 +110,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
       </div>
       
       {risks && (
-          <button onClick={downloadReport} style={{ width: "100%", marginBottom: 16, background: "linear-gradient(135deg,#C8A96E,#7A5C10)", border: "none", color: "#0B0D12", padding: "8px 16px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif" }}>
+          <button onClick={downloadReport} style={{ width: "100%", marginBottom: 16, background: "linear-gradient(135deg,var(--accent-gold),#7A5C10)", border: "none", color: "var(--bg-main)", padding: "8px 16px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif" }}>
             ↓ PRINT PDF REPORT
           </button>
       )}
@@ -154,17 +154,17 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 120 }}
                 key={risk.id} onClick={() => setActiveRisk(isActive ? null : risk)} style={{
-                background: isActive ? "#1A1D27" : "#111420",
-                border: `1px solid ${isActive ? c.border : "#1E2028"}`,
+                background: isActive ? "var(--bg-panel-hover)" : "#111420",
+                border: `1px solid ${isActive ? c.border : "var(--bg-panel-hover)"}`,
                 borderLeft: `3px solid ${c.dot}`,
                 borderRadius: 8, padding: "10px 12px",
                 cursor: "pointer", transition: "border 0.15s, background 0.15s",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#D4CFCA", fontFamily: "'Inter', sans-serif" }}>{risk.title}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-main)", fontFamily: "'Inter', sans-serif" }}>{risk.title}</span>
                   <span style={{ fontSize: 9, color: c.dot, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Inter', sans-serif" }}>{risk.level.toUpperCase()}</span>
                 </div>
-                <div style={{ fontSize: 10, color: "#444750", fontFamily: "'Inter', sans-serif", letterSpacing: "0.05em" }}>{risk.category}</div>
+                <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif", letterSpacing: "0.05em" }}>{risk.category}</div>
               </motion.div>
             );
           })}

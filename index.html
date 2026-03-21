@@ -9,6 +9,42 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
       
+      :root {
+        --bg-main: #0B0D12;
+        --bg-panel: #13161D;
+        --bg-panel-hover: #1E2028;
+        --border-main: #222530;
+        --border-light: #2A2D38;
+        --text-main: #E8E4DC;
+        --text-muted: #9A9DB0;
+        --text-dim: #555A6A;
+        --accent-gold: #C8A96E;
+        --accent-gold-dark: #8B6914;
+        --glass-bg: rgba(11, 13, 18, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.05);
+      }
+
+      body.light-theme {
+        --bg-main: #F4F6F9;
+        --bg-panel: #FFFFFF;
+        --bg-panel-hover: #F8FAFC;
+        --border-main: #E2E8F0;
+        --border-light: #CBD5E1;
+        --text-main: #0F172A;
+        --text-muted: #475569;
+        --text-dim: #94A3B8;
+        --accent-gold: #A37526;
+        --accent-gold-dark: #7A5313;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(0, 0, 0, 0.08);
+      }
+
+      body {
+        background: var(--bg-main) !important;
+        color: var(--text-main) !important;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+      
       @media print {
         body { background: white !important; color: black !important; padding: 20px !important; }
         /* Hide everything except the actual Risk components */
@@ -23,7 +59,7 @@
       }
     </style>
   </head>
-  <body style="margin:0;padding:0;background:#0B0D12;">
+  <body style="margin:0;padding:0;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

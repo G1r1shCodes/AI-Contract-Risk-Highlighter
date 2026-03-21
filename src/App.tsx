@@ -10,7 +10,7 @@ import { btnStyle, RC } from "./utils/constants";
 import { motion } from "framer-motion";
 
 const BackgroundGlow = () => (
-  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1, overflow: 'hidden', background: '#050608' }}>
+  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1, overflow: 'hidden', background: 'var(--bg-main)' }}>
     <motion.div
       animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.2, 0.12], rotate: [0, 90, 0] }}
       transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
@@ -19,12 +19,20 @@ const BackgroundGlow = () => (
     <motion.div
       animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.15, 0.08], x: [0, 50, 0] }}
       transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '70vw', height: '70vw', background: 'radial-gradient(circle, rgba(40,48,65,0.7) 0%, rgba(0,0,0,0) 65%)', borderRadius: '50%' }}
+      style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '70vw', height: '70vw', background: 'radial-gradient(circle, rgba(122,92,16,0.1) 0%, rgba(0,0,0,0) 65%)', borderRadius: '50%' }}
     />
   </div>
 );
 
 function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) => void }) {
+  const [theme, setTheme] = useState(() => localStorage.getItem("lexscan_theme") || "dark");
+  
+  useEffect(() => {
+    if (theme === "light") document.body.classList.add("light-theme");
+    else document.body.classList.remove("light-theme");
+    localStorage.setItem("lexscan_theme", theme);
+  }, [theme]);
+
   const [contractHistory, setContractHistory] = useState<any[]>([]);
 
   useEffect(() => {
@@ -288,27 +296,27 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
   const scoreColor = score >= 70 ? "#E53935" : score >= 40 ? "#FB8C00" : "#43A047";
 
   return (
-    <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", color: "#E8E4DC", display: "flex", position: "relative" }}>
+    <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", color: "var(--text-main)", display: "flex", position: "relative" }}>
       <BackgroundGlow />
       {/* Sidebar History */}
-      <div style={{ width: 260, background: "rgba(11, 13, 18, 0.6)", backdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", zIndex: 10 }}>
+      <div style={{ width: 260, background: "rgba(11, 13, 18, 0.6)", backdropFilter: "blur(20px)", borderRight: "1px solid var(--glass-border)", display: "flex", flexDirection: "column", zIndex: 10 }}>
         <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#C8A96E,#7A5C10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>⚖️</div>
-            <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.07em", color: "#C8A96E" }}>LEXSCAN</div>
+            <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,var(--accent-gold),#7A5C10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>⚖️</div>
+            <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.07em", color: "var(--accent-gold)" }}>LEXSCAN</div>
           </div>
         </div>
-        <div style={{ padding: "16px 20px", fontSize: 11, fontWeight: 700, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ padding: "16px 20px", fontSize: 11, fontWeight: 700, color: "var(--text-dim)", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>
           HISTORY
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
           {!user ? (
-             <div style={{ padding: '20px', textAlign: 'center', color: '#555A6A', fontSize: 12, fontFamily: 'system-ui', border: '1px dashed #1E2028', borderRadius: 8, marginTop: 16 }}>
+             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontSize: 12, fontFamily: 'system-ui', border: '1px dashed var(--bg-panel-hover)', borderRadius: 8, marginTop: 16 }}>
                <p style={{ lineHeight: 1.6, marginBottom: 16 }}>Sign in to automatically save and track your legal documents in the cloud.</p>
-               <button onClick={() => setShowAuth(true)} style={{ background: '#1E2028', border: 'none', color: '#C8A96E', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em' }}>GET STARTED</button>
+               <button onClick={() => setShowAuth(true)} style={{ background: 'var(--bg-panel-hover)', border: 'none', color: 'var(--accent-gold)', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em' }}>GET STARTED</button>
              </div>
           ) : contractHistory.length === 0 ? (
-            <div style={{ padding: "10px 8px", fontSize: 11, color: "#444750", fontFamily: "'Inter', sans-serif" }}>No saved history.</div>
+            <div style={{ padding: "10px 8px", fontSize: 11, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif" }}>No saved history.</div>
           ) : (
             contractHistory.map((item) => (
             <div key={item.id} onClick={() => {
@@ -321,14 +329,14 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
                setActiveRisk(null);
             }} style={{
                padding: "12px 14px", borderRadius: 8, cursor: "pointer", marginBottom: 6,
-               background: risks?.summary === item.risks?.summary ? "#13161D" : "transparent",
-               border: `1px solid ${risks?.summary === item.risks?.summary ? "#222530" : "transparent"}`,
+               background: risks?.summary === item.risks?.summary ? "var(--bg-panel)" : "transparent",
+               border: `1px solid ${risks?.summary === item.risks?.summary ? "var(--border-main)" : "transparent"}`,
                transition: "all 0.2s"
             }}>
-              <div style={{ fontSize: 12, color: "#D4CFCA", fontWeight: 600, fontFamily: "'Inter', sans-serif", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: 12, color: "var(--text-main)", fontWeight: 600, fontFamily: "'Inter', sans-serif", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {item.fileName}
               </div>
-              <div style={{ fontSize: 10, color: "#555A6A", fontFamily: "'Inter', sans-serif" }}>
+              <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif" }}>
                 {new Date(item.date).toLocaleDateString()} · Score: {item.risks.riskScore}
               </div>
             </div>
@@ -340,20 +348,23 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
         <header style={{
           borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "16px 32px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: "rgba(11, 13, 18, 0.65)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 200,
+          background: "var(--glass-bg)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 200,
         }}>
           <div></div>
 
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{ ...btnStyle("transparent", "var(--border-main)", "var(--text-muted)", true), padding: "8px", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+               {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
             {user ? (
-               <button onClick={() => supabase.auth.signOut()} style={btnStyle("transparent", "#222530", "#9A9DB0", true)}>SIGN OUT</button>
+               <button onClick={() => supabase.auth.signOut()} style={btnStyle("transparent", "var(--border-main)", "var(--text-muted)", true)}>SIGN OUT</button>
             ) : (
-               <button onClick={() => setShowAuth(true)} style={btnStyle("transparent", "#C8A96E", "#C8A96E", true)}>SIGN IN</button>
+               <button onClick={() => setShowAuth(true)} style={btnStyle("transparent", "var(--accent-gold)", "var(--accent-gold)", true)}>SIGN IN</button>
             )}
             
             {view === "results" && (
               <button onClick={() => { setView("input"); setRisks(null); setContractText(""); setFileName(""); setActiveRisk(null); setFilterLevel("all"); setQaMessages([]); setLoading(false); }}
-                style={btnStyle("transparent", "#222530", "#9A9DB0", true)}>
+                style={btnStyle("transparent", "var(--border-main)", "var(--text-muted)", true)}>
                 ← NEW
               </button>
             )}
@@ -375,21 +386,21 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
       {view === "results" && (
         <div style={{ display: "flex", height: "calc(100vh - 69px)" }}>
           {/* LEFT: Contract */}
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", borderRight: "1px solid #1E2028" }}>
+          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", borderRight: "1px solid var(--bg-panel-hover)" }}>
             <div style={{ padding: "28px 36px 0" }}>
               {/* Score Banner */}
               <div style={{
-                background: "#13161D", border: "1px solid #222530", borderRadius: 10,
+                background: "var(--bg-panel)", border: "1px solid var(--border-main)", borderRadius: 10,
                 padding: "18px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 20,
               }}>
                 <div style={{ textAlign: "center", minWidth: 60 }}>
                   <div style={{ fontSize: 36, fontWeight: 700, color: loading ? "#555" : scoreColor, lineHeight: 1, fontFamily: "'Inter', sans-serif", transition: "all 0.4s" }}>
                      {loading ? "--" : score}
                   </div>
-                  <div style={{ fontSize: 9, color: "#555A6A", letterSpacing: "0.12em", fontFamily: "'Inter', sans-serif", marginTop: 3 }}>RISK SCORE</div>
+                  <div style={{ fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.12em", fontFamily: "'Inter', sans-serif", marginTop: 3 }}>RISK SCORE</div>
                 </div>
-                <div style={{ width: 1, height: 40, background: "#222530" }} />
-                <div style={{ flex: 1, fontSize: 13, color: "#9A9DB0", lineHeight: 1.65, fontFamily: "'Inter', sans-serif" }}>
+                <div style={{ width: 1, height: 40, background: "var(--border-main)" }} />
+                <div style={{ flex: 1, fontSize: 13, color: "var(--text-muted)", lineHeight: 1.65, fontFamily: "'Inter', sans-serif" }}>
                    {loading ? "AI is generating compliance report... this takes about 5 - 15 seconds." : risks?.summary}
                 </div>
                 <div style={{ display: "flex", gap: 16 }}>
@@ -398,7 +409,7 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
                       <div style={{ fontSize: 18, fontWeight: 700, color: loading ? "#555" : RC[l].dot, fontFamily: "'Inter', sans-serif", transition: "color 0.4s" }}>
                          {loading ? "-" : counts[l]}
                       </div>
-                      <div style={{ fontSize: 9, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>{l.toUpperCase()}</div>
+                      <div style={{ fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>{l.toUpperCase()}</div>
                     </div>
                   ))}
                 </div>
@@ -409,9 +420,9 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
                 {[["analyze","🔍 HIGHLIGHTED CONTRACT"],["qa","💬 ASK QUESTIONS"]].map(([t,label]) => (
                   <button key={t} onClick={() => setActiveTab(t)} style={{
                     padding: "8px 18px", borderRadius: 6,
-                    background: activeTab === t ? "#C8A96E" : "#13161D",
-                    color: activeTab === t ? "#0B0D12" : "#6B6F7A",
-                    border: `1px solid ${activeTab === t ? "transparent" : "#222530"}`,
+                    background: activeTab === t ? "var(--accent-gold)" : "var(--bg-panel)",
+                    color: activeTab === t ? "var(--bg-main)" : "var(--text-dim)",
+                    border: `1px solid ${activeTab === t ? "transparent" : "var(--border-main)"}`,
                     cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif",
                     transition: "all 0.15s",
                     opacity: t === "qa" && loading ? 0.3 : 1
@@ -487,7 +498,7 @@ export default function App() {
       {showAuth && !session && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ position: 'relative' }}>
-            <button onClick={() => setShowAuth(false)} style={{ position: 'absolute', top: 18, right: 18, background: '#1A1D27', border: '1px solid #2A2D38', color: '#9A9DB0', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, fontSize: 18 }}>×</button>
+            <button onClick={() => setShowAuth(false)} style={{ position: 'absolute', top: 18, right: 18, background: 'var(--bg-panel-hover)', border: '1px solid var(--border-light)', color: 'var(--text-muted)', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, fontSize: 18 }}>×</button>
             <Auth />
           </div>
         </div>
