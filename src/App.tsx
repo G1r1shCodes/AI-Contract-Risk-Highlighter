@@ -94,8 +94,32 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        text += content.items.map((it) => it.str).join(" ") + "\n";
+        text += content.items.map((it: any) => it.str).join(" ") + "\n";
       }
+
+      if (!text.trim()) {
+         setContractText("Scanning PDF pixels... running deep OCR abstraction (this takes about 5 - 15 seconds)...");
+         setLoading(true);
+         try {
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            
+            const imgData = canvas.toDataURL("image/png");
+            const Tesseract = await import('tesseract.js');
+            const result = await Tesseract.recognize(imgData, 'eng');
+            text = result.data.text;
+         } catch(e) {
+            console.error("PDF OCR Fallback failed", e);
+         } finally {
+            setLoading(false);
+         }
+      }
+
       URL.revokeObjectURL(url);
       setContractText(text.trim());
     } else if (['png', 'jpg', 'jpeg'].includes(ext)) {
