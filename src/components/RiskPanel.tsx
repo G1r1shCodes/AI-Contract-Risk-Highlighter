@@ -101,7 +101,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
             color: filterLevel === f ? (f === "all" ? "#0B0D12" : "#fff") : "#555A6A",
             border: `1px solid ${filterLevel === f ? "transparent" : "#1E2028"}`,
             borderRadius: 6, cursor: "pointer",
-            fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "system-ui",
+            fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Inter', sans-serif",
             transition: "all 0.15s",
           }}>
             {f === "all" ? "ALL" : f.toUpperCase()}{f !== "all" && ` (${counts[f]})`}
@@ -110,7 +110,7 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
       </div>
       
       {risks && (
-          <button onClick={downloadReport} style={{ width: "100%", marginBottom: 16, background: "linear-gradient(135deg,#C8A96E,#7A5C10)", border: "none", color: "#0B0D12", padding: "8px 16px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "system-ui" }}>
+          <button onClick={downloadReport} style={{ width: "100%", marginBottom: 16, background: "linear-gradient(135deg,#C8A96E,#7A5C10)", border: "none", color: "#0B0D12", padding: "8px 16px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif" }}>
             ↓ PRINT PDF REPORT
           </button>
       )}
@@ -124,18 +124,18 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
           boxShadow: `0 4px 24px ${RC[activeRisk.level].glow}`,
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#111", fontFamily: "system-ui" }}>{activeRisk.title}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#111", fontFamily: "'Inter', sans-serif" }}>{activeRisk.title}</span>
             <button onClick={() => setActiveRisk(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 15, padding: 0 }}>×</button>
           </div>
           <div style={{ background: "#fff", borderRadius: 6, padding: "8px 10px", fontSize: 11, color: "#444", fontStyle: "italic", marginBottom: 10, lineHeight: 1.5, fontFamily: "Georgia,serif" }}>
             "{activeRisk.quote}"
           </div>
-          <div style={{ fontSize: 11, color: "#333", lineHeight: 1.6, fontFamily: "system-ui" }}>{activeRisk.explanation}</div>
+          <div style={{ fontSize: 11, color: "#333", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" }}>{activeRisk.explanation}</div>
           <div style={{ marginTop: 10 }}>
-            <span style={{ fontSize: 10, background: RC[activeRisk.level].border, color: "#fff", padding: "2px 8px", borderRadius: 4, fontFamily: "system-ui", fontWeight: 700, marginRight: 6 }}>
+            <span style={{ fontSize: 10, background: RC[activeRisk.level].border, color: "#fff", padding: "2px 8px", borderRadius: 4, fontFamily: "'Inter', sans-serif", fontWeight: 700, marginRight: 6 }}>
               {activeRisk.level.toUpperCase()}
             </span>
-            <span style={{ fontSize: 10, color: "#888", fontFamily: "system-ui" }}>{activeRisk.category}</span>
+            <span style={{ fontSize: 10, color: "#888", fontFamily: "'Inter', sans-serif" }}>{activeRisk.category}</span>
           </div>
         </div>
       )}
@@ -161,10 +161,10 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
                 cursor: "pointer", transition: "border 0.15s, background 0.15s",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#D4CFCA", fontFamily: "system-ui" }}>{risk.title}</span>
-                  <span style={{ fontSize: 9, color: c.dot, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "system-ui" }}>{risk.level.toUpperCase()}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#D4CFCA", fontFamily: "'Inter', sans-serif" }}>{risk.title}</span>
+                  <span style={{ fontSize: 9, color: c.dot, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "'Inter', sans-serif" }}>{risk.level.toUpperCase()}</span>
                 </div>
-                <div style={{ fontSize: 10, color: "#444750", fontFamily: "system-ui", letterSpacing: "0.05em" }}>{risk.category}</div>
+                <div style={{ fontSize: 10, color: "#444750", fontFamily: "'Inter', sans-serif", letterSpacing: "0.05em" }}>{risk.category}</div>
               </motion.div>
             );
           })}

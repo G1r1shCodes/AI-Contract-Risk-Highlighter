@@ -7,11 +7,31 @@ import AskQuestionsTab from "./components/AskQuestionsTab";
 import Auth from "./components/Auth";
 import { supabase } from "./supabaseClient";
 import { btnStyle, RC } from "./utils/constants";
+import { motion } from "framer-motion";
 
-function LexScan({ user }: { user: any }) {
+const BackgroundGlow = () => (
+  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1, overflow: 'hidden', background: '#050608' }}>
+    <motion.div
+      animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.2, 0.12], rotate: [0, 90, 0] }}
+      transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+      style={{ position: 'absolute', top: '-30%', left: '-10%', width: '80vw', height: '80vw', background: 'radial-gradient(circle, rgba(200,169,110,0.15) 0%, rgba(0,0,0,0) 60%)', borderRadius: '50%' }}
+    />
+    <motion.div
+      animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.15, 0.08], x: [0, 50, 0] }}
+      transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+      style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '70vw', height: '70vw', background: 'radial-gradient(circle, rgba(40,48,65,0.7) 0%, rgba(0,0,0,0) 65%)', borderRadius: '50%' }}
+    />
+  </div>
+);
+
+function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) => void }) {
   const [contractHistory, setContractHistory] = useState<any[]>([]);
 
   useEffect(() => {
+    if (!user) {
+      setContractHistory([]);
+      return;
+    }
     const fetchHistory = async () => {
       const { data, error } = await supabase
         .from('contract_history')
@@ -30,7 +50,7 @@ function LexScan({ user }: { user: any }) {
       }
     };
     fetchHistory();
-  }, []);
+  }, [user]);
   const [contractText, setContractText] = useState("");
   const [fileName, setFileName]         = useState("");
   const [risks, setRisks]               = useState(null);
@@ -128,25 +148,27 @@ function LexScan({ user }: { user: any }) {
               const dataStr = line.slice(6).trim();
               if (dataStr === '[DONE]') {
                  setLoading(false);
-                 // Live Cloud Insertion mapped securely to User Session
-                 supabase.from('contract_history').insert([{
-                    user_id: user.id,
-                    filename: fileName,
-                    contract_text: contractText,
-                    risk_score: finalRisks.riskScore || 0,
-                    risks_json: finalRisks
-                 }]).select().then(({ data, error }) => {
-                    if (data && data.length > 0) {
-                       const dbRow = data[0];
-                       setContractHistory(prev => [{
-                          id: dbRow.id,
-                          fileName: dbRow.filename,
-                          date: dbRow.created_at,
-                          contractText: dbRow.contract_text,
-                          risks: dbRow.risks_json
-                       }, ...prev]);
-                    }
-                 });
+                 if (user) {
+                   // Live Cloud Insertion mapped securely to User Session
+                   supabase.from('contract_history').insert([{
+                      user_id: user.id,
+                      filename: fileName,
+                      contract_text: contractText,
+                      risk_score: finalRisks.riskScore || 0,
+                      risks_json: finalRisks
+                   }]).select().then(({ data, error }) => {
+                      if (data && data.length > 0) {
+                         const dbRow = data[0];
+                         setContractHistory(prev => [{
+                            id: dbRow.id,
+                            fileName: dbRow.filename,
+                            date: dbRow.created_at,
+                            contractText: dbRow.contract_text,
+                            risks: dbRow.risks_json
+                         }, ...prev]);
+                      }
+                   });
+                 }
                  return;
               }
               
@@ -215,29 +237,35 @@ function LexScan({ user }: { user: any }) {
   };
 
   const counts = { high: 0, medium: 0, low: 0 };
-  risks?.risks?.forEach((r) => counts[r.level]++);
-  const score = risks?.riskScore || 0;
-  const scoreColor = score > 70 ? "#E53935" : score > 40 ? "#FB8C00" : "#43A047";
+  risks?.risks?.forEach((r: any) => { if (counts[r.level] !== undefined) counts[r.level]++; });
+  const rawScore = risks?.riskScore || 0;
+  const score = rawScore <= 10 && rawScore > 0 ? rawScore * 10 : rawScore;
+  const scoreColor = score >= 70 ? "#E53935" : score >= 40 ? "#FB8C00" : "#43A047";
 
   return (
-    <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", background: "#0B0D12", color: "#E8E4DC", display: "flex" }}>
-      
+    <div style={{ fontFamily: "Georgia,'Times New Roman',serif", minHeight: "100vh", color: "#E8E4DC", display: "flex", position: "relative" }}>
+      <BackgroundGlow />
       {/* Sidebar History */}
-      <div style={{ width: 260, background: "#0B0D12", borderRight: "1px solid #1E2028", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "20px 24px", borderBottom: "1px solid #1E2028" }}>
+      <div style={{ width: 260, background: "rgba(11, 13, 18, 0.6)", backdropFilter: "blur(20px)", borderRight: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", zIndex: 10 }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#C8A96E,#7A5C10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>⚖️</div>
             <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.07em", color: "#C8A96E" }}>LEXSCAN</div>
           </div>
         </div>
-        <div style={{ padding: "16px 20px", fontSize: 11, fontWeight: 700, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "system-ui" }}>
+        <div style={{ padding: "16px 20px", fontSize: 11, fontWeight: 700, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>
           HISTORY
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
-          {contractHistory.length === 0 && (
-            <div style={{ padding: "10px 8px", fontSize: 11, color: "#444750", fontFamily: "system-ui" }}>No saved history.</div>
-          )}
-          {contractHistory.map((item) => (
+          {!user ? (
+             <div style={{ padding: '20px', textAlign: 'center', color: '#555A6A', fontSize: 12, fontFamily: 'system-ui', border: '1px dashed #1E2028', borderRadius: 8, marginTop: 16 }}>
+               <p style={{ lineHeight: 1.6, marginBottom: 16 }}>Sign in to automatically save and track your legal documents in the cloud.</p>
+               <button onClick={() => setShowAuth(true)} style={{ background: '#1E2028', border: 'none', color: '#C8A96E', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em' }}>GET STARTED</button>
+             </div>
+          ) : contractHistory.length === 0 ? (
+            <div style={{ padding: "10px 8px", fontSize: 11, color: "#444750", fontFamily: "'Inter', sans-serif" }}>No saved history.</div>
+          ) : (
+            contractHistory.map((item) => (
             <div key={item.id} onClick={() => {
                setContractText(item.contractText);
                setFileName(item.fileName);
@@ -252,34 +280,40 @@ function LexScan({ user }: { user: any }) {
                border: `1px solid ${risks?.summary === item.risks?.summary ? "#222530" : "transparent"}`,
                transition: "all 0.2s"
             }}>
-              <div style={{ fontSize: 12, color: "#D4CFCA", fontWeight: 600, fontFamily: "system-ui", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: 12, color: "#D4CFCA", fontWeight: 600, fontFamily: "'Inter', sans-serif", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {item.fileName}
               </div>
-              <div style={{ fontSize: 10, color: "#555A6A", fontFamily: "system-ui" }}>
+              <div style={{ fontSize: 10, color: "#555A6A", fontFamily: "'Inter', sans-serif" }}>
                 {new Date(item.date).toLocaleDateString()} · Score: {item.risks.riskScore}
               </div>
             </div>
-          ))}
+          )))}
         </div>
       </div>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", zIndex: 10 }}>
         <header style={{
-          borderBottom: "1px solid #222530", padding: "16px 32px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "16px 32px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          background: "#0B0D12", position: "sticky", top: 0, zIndex: 200,
+          background: "rgba(11, 13, 18, 0.65)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 200,
         }}>
           <div></div>
 
-        {view === "results" && (
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button onClick={() => { setView("input"); setRisks(null); setContractText(""); setFileName(""); setActiveRisk(null); setFilterLevel("all"); setQaMessages([]); setLoading(false); }}
-              style={btnStyle("transparent", "#222530", "#9A9DB0", true)}>
-              ← NEW
-            </button>
+            {user ? (
+               <button onClick={() => supabase.auth.signOut()} style={btnStyle("transparent", "#222530", "#9A9DB0", true)}>SIGN OUT</button>
+            ) : (
+               <button onClick={() => setShowAuth(true)} style={btnStyle("transparent", "#C8A96E", "#C8A96E", true)}>SIGN IN</button>
+            )}
+            
+            {view === "results" && (
+              <button onClick={() => { setView("input"); setRisks(null); setContractText(""); setFileName(""); setActiveRisk(null); setFilterLevel("all"); setQaMessages([]); setLoading(false); }}
+                style={btnStyle("transparent", "#222530", "#9A9DB0", true)}>
+                ← NEW
+              </button>
+            )}
           </div>
-        )}
-      </header>
+        </header>
 
       {view === "input" && (
         <Uploader 
@@ -304,22 +338,22 @@ function LexScan({ user }: { user: any }) {
                 padding: "18px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 20,
               }}>
                 <div style={{ textAlign: "center", minWidth: 60 }}>
-                  <div style={{ fontSize: 36, fontWeight: 700, color: loading ? "#555" : scoreColor, lineHeight: 1, fontFamily: "system-ui", transition: "all 0.4s" }}>
+                  <div style={{ fontSize: 36, fontWeight: 700, color: loading ? "#555" : scoreColor, lineHeight: 1, fontFamily: "'Inter', sans-serif", transition: "all 0.4s" }}>
                      {loading ? "--" : score}
                   </div>
-                  <div style={{ fontSize: 9, color: "#555A6A", letterSpacing: "0.12em", fontFamily: "system-ui", marginTop: 3 }}>RISK SCORE</div>
+                  <div style={{ fontSize: 9, color: "#555A6A", letterSpacing: "0.12em", fontFamily: "'Inter', sans-serif", marginTop: 3 }}>RISK SCORE</div>
                 </div>
                 <div style={{ width: 1, height: 40, background: "#222530" }} />
-                <div style={{ flex: 1, fontSize: 13, color: "#9A9DB0", lineHeight: 1.65, fontFamily: "system-ui" }}>
+                <div style={{ flex: 1, fontSize: 13, color: "#9A9DB0", lineHeight: 1.65, fontFamily: "'Inter', sans-serif" }}>
                    {loading ? "AI is generating compliance report... this takes about 5 - 15 seconds." : risks?.summary}
                 </div>
                 <div style={{ display: "flex", gap: 16 }}>
                   {["high","medium","low"].map((l) => (
                     <div key={l} style={{ textAlign: "center", opacity: loading ? 0.4 : 1, transition: "opacity 0.4s" }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: loading ? "#555" : RC[l].dot, fontFamily: "system-ui", transition: "color 0.4s" }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: loading ? "#555" : RC[l].dot, fontFamily: "'Inter', sans-serif", transition: "color 0.4s" }}>
                          {loading ? "-" : counts[l]}
                       </div>
-                      <div style={{ fontSize: 9, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "system-ui" }}>{l.toUpperCase()}</div>
+                      <div style={{ fontSize: 9, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>{l.toUpperCase()}</div>
                     </div>
                   ))}
                 </div>
@@ -333,7 +367,7 @@ function LexScan({ user }: { user: any }) {
                     background: activeTab === t ? "#C8A96E" : "#13161D",
                     color: activeTab === t ? "#0B0D12" : "#6B6F7A",
                     border: `1px solid ${activeTab === t ? "transparent" : "#222530"}`,
-                    cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "system-ui",
+                    cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif",
                     transition: "all 0.15s",
                     opacity: t === "qa" && loading ? 0.3 : 1
                   }} disabled={t === "qa" && loading}>{label}</button>
@@ -383,24 +417,36 @@ function LexScan({ user }: { user: any }) {
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
+  const [showAuth, setShowAuth] = useState(false);
   
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session) setShowAuth(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) setShowAuth(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (!session) {
-    return <Auth />;
-  }
-
-  return <LexScan user={session.user} />;
+  return (
+    <>
+      <LexScan user={session?.user} setShowAuth={setShowAuth} />
+      
+      {showAuth && !session && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <button onClick={() => setShowAuth(false)} style={{ position: 'absolute', top: 18, right: 18, background: '#1A1D27', border: '1px solid #2A2D38', color: '#9A9DB0', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, fontSize: 18 }}>×</button>
+            <Auth />
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

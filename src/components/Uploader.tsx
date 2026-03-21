@@ -16,11 +16,11 @@ export default function Uploader({ contractText, setContractText, fileName, setF
   return (
     <div style={{ maxWidth: 780, margin: "0 auto", padding: "56px 32px" }}>
       <div style={{ textAlign: "center", marginBottom: 52 }}>
-        <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "#C8A96E", fontFamily: "system-ui", marginBottom: 14 }}>POWERED BY AI</div>
+        <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "#C8A96E", fontFamily: "'Inter', sans-serif", marginBottom: 14 }}>POWERED BY AI</div>
         <h1 style={{ fontSize: 40, fontWeight: 400, lineHeight: 1.15, margin: "0 0 16px", letterSpacing: "-0.01em" }}>
           Spot Hidden Risks<br /><em style={{ color: "#C8A96E" }}>Before You Sign</em>
         </h1>
-        <p style={{ color: "#6B6F7A", fontSize: 14, lineHeight: 1.7, fontFamily: "system-ui", maxWidth: 480, margin: "0 auto" }}>
+        <p style={{ color: "#6B6F7A", fontSize: 14, lineHeight: 1.7, fontFamily: "'Inter', sans-serif", maxWidth: 480, margin: "0 auto" }}>
           Upload your contract (PDF, DOCX, TXT, PNG, or JPG), get an instant AI risk analysis, interactive clause highlighting, and ask questions in plain English.
         </p>
       </div>
@@ -42,16 +42,16 @@ export default function Uploader({ contractText, setContractText, fileName, setF
           background: dragOver ? "rgba(200,169,110,0.05)" : "transparent",
         }}>
         <div style={{ fontSize: 32, marginBottom: 10 }}>📄</div>
-        <div style={{ color: "#C8A96E", fontSize: 14, fontFamily: "system-ui", fontWeight: 600, marginBottom: 6 }}>
+        <div style={{ color: "#C8A96E", fontSize: 14, fontFamily: "'Inter', sans-serif", fontWeight: 600, marginBottom: 6 }}>
           Drop your contract here
         </div>
-        <div style={{ color: "#555A6A", fontSize: 12, fontFamily: "system-ui" }}>PDF · DOCX · TXT · PNG · JPG &nbsp;·&nbsp; or click to browse</div>
+        <div style={{ color: "#555A6A", fontSize: 12, fontFamily: "'Inter', sans-serif" }}>PDF · DOCX · TXT · PNG · JPG &nbsp;·&nbsp; or click to browse</div>
         <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg" onChange={(e) => e.target.files[0] && extractText(e.target.files[0])} style={{ display: "none" }} />
       </motion.div>
 
       {fileName && (
         <div style={{ background: "#13161D", border: "1px solid #2A2D38", borderRadius: 8, padding: "10px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 12, color: "#C8A96E", fontFamily: "system-ui" }}>📎 {fileName}</span>
+          <span style={{ fontSize: 12, color: "#C8A96E", fontFamily: "'Inter', sans-serif" }}>📎 {fileName}</span>
           <button onClick={() => { setFileName(""); setContractText(""); }} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 16 }}>×</button>
         </div>
       )}
@@ -59,9 +59,9 @@ export default function Uploader({ contractText, setContractText, fileName, setF
       {/* Text area */}
       <div style={{ background: "#13161D", border: "1px solid #222530", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ padding: "12px 18px", borderBottom: "1px solid #222530", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "system-ui" }}>CONTRACT TEXT</span>
+          <span style={{ fontSize: 11, color: "#555A6A", letterSpacing: "0.1em", fontFamily: "'Inter', sans-serif" }}>CONTRACT TEXT</span>
           <button onClick={() => { setContractText(SAMPLE_CONTRACT); setFileName("sample_contract.txt"); }}
-            style={{ background: "none", border: "1px solid #2A2D38", color: "#9A9DB0", padding: "4px 11px", borderRadius: 5, cursor: "pointer", fontSize: 11, fontFamily: "system-ui" }}>
+            style={{ background: "none", border: "1px solid #2A2D38", color: "#9A9DB0", padding: "4px 11px", borderRadius: 5, cursor: "pointer", fontSize: 11, fontFamily: "'Inter', sans-serif" }}>
             Load Sample
           </button>
         </div>
@@ -76,7 +76,7 @@ export default function Uploader({ contractText, setContractText, fileName, setF
           }}
         />
         <div style={{ padding: "12px 18px", borderTop: "1px solid #222530", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: "#44475A", fontFamily: "system-ui" }}>
+          <span style={{ fontSize: 11, color: "#44475A", fontFamily: "'Inter', sans-serif" }}>
             {contractText ? `${contractText.split(/\s+/).filter(Boolean).length} words` : ""}
           </span>
           <button onClick={analyze} disabled={!contractText.trim() || loading}
@@ -85,7 +85,7 @@ export default function Uploader({ contractText, setContractText, fileName, setF
               color: !contractText.trim() || loading ? "#555A6A" : "#0B0D12",
               border: "none", padding: "11px 26px", borderRadius: 7,
               cursor: !contractText.trim() || loading ? "not-allowed" : "pointer",
-              fontSize: 12, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "system-ui",
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.07em", fontFamily: "'Inter', sans-serif",
               transition: "all 0.2s",
             }}>
             {loading ? "⏳  ANALYZING…" : "ANALYZE RISKS →"}

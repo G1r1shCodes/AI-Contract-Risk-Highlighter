@@ -23,8 +23,8 @@ export default function Auth() {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0A0B', color: '#fff', fontFamily: 'system-ui' }}>
-      <form onSubmit={handleAuth} style={{ padding: '40px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)', width: '380px' }}>
+    <div style={{ backgroundColor: 'transparent', color: '#fff', fontFamily: 'system-ui' }}>
+      <form onSubmit={handleAuth} style={{ padding: '40px', background: '#0D0F14', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 24px 64px rgba(0,0,0,0.8)', width: '380px' }}>
         <h2 style={{ margin: '0 0 8px', fontSize: 24, fontWeight: 500, letterSpacing: '-0.02em', color: '#C8A96E' }}>
           {mode === 'login' ? 'Sign in to LexScan' : 'Create an Account'}
         </h2>
