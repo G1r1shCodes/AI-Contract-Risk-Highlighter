@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RC } from '../utils/constants';
 
 function generateReportHTML(contractText, risks, fileName) {
@@ -141,25 +142,33 @@ export default function RiskPanel({ loading, risks, counts, filterLevel, setFilt
 
       {/* Risk list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {filtered.map((risk) => {
-          const c = RC[risk.level];
-          const isActive = activeRisk?.id === risk.id;
-          return (
-            <div key={risk.id} onClick={() => setActiveRisk(isActive ? null : risk)} style={{
-              background: isActive ? "#1A1D27" : "#111420",
-              border: `1px solid ${isActive ? c.border : "#1E2028"}`,
-              borderLeft: `3px solid ${c.dot}`,
-              borderRadius: 8, padding: "10px 12px",
-              cursor: "pointer", transition: "all 0.15s",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#D4CFCA", fontFamily: "system-ui" }}>{risk.title}</span>
-                <span style={{ fontSize: 9, color: c.dot, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "system-ui" }}>{risk.level.toUpperCase()}</span>
-              </div>
-              <div style={{ fontSize: 10, color: "#444750", fontFamily: "system-ui", letterSpacing: "0.05em" }}>{risk.category}</div>
-            </div>
-          );
-        })}
+        <AnimatePresence mode='popLayout'>
+          {filtered.map((risk) => {
+            const c = RC[risk.level];
+            const isActive = activeRisk?.id === risk.id;
+            return (
+              <motion.div 
+                layout
+                initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+                key={risk.id} onClick={() => setActiveRisk(isActive ? null : risk)} style={{
+                background: isActive ? "#1A1D27" : "#111420",
+                border: `1px solid ${isActive ? c.border : "#1E2028"}`,
+                borderLeft: `3px solid ${c.dot}`,
+                borderRadius: 8, padding: "10px 12px",
+                cursor: "pointer", transition: "border 0.15s, background 0.15s",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#D4CFCA", fontFamily: "system-ui" }}>{risk.title}</span>
+                  <span style={{ fontSize: 9, color: c.dot, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "system-ui" }}>{risk.level.toUpperCase()}</span>
+                </div>
+                <div style={{ fontSize: 10, color: "#444750", fontFamily: "system-ui", letterSpacing: "0.05em" }}>{risk.category}</div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </div>
   );

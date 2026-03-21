@@ -4,10 +4,11 @@ import Uploader from "./components/Uploader";
 import ContractViewer from "./components/ContractViewer";
 import RiskPanel from "./components/RiskPanel";
 import AskQuestionsTab from "./components/AskQuestionsTab";
+import Auth from "./components/Auth";
 import { supabase } from "./supabaseClient";
 import { btnStyle, RC } from "./utils/constants";
 
-export default function LexScan() {
+function LexScan({ user }: { user: any }) {
   const [contractHistory, setContractHistory] = useState<any[]>([]);
 
   useEffect(() => {
@@ -127,8 +128,9 @@ export default function LexScan() {
               const dataStr = line.slice(6).trim();
               if (dataStr === '[DONE]') {
                  setLoading(false);
-                 // Live Cloud Insertion via RPC PostgREST API
+                 // Live Cloud Insertion mapped securely to User Session
                  supabase.from('contract_history').insert([{
+                    user_id: user.id,
                     filename: fileName,
                     contract_text: contractText,
                     risk_score: finalRisks.riskScore || 0,
@@ -377,4 +379,28 @@ export default function LexScan() {
       </div>
     </div>
   );
+}
+
+export default function App() {
+  const [session, setSession] = useState<any>(null);
+  
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (!session) {
+    return <Auth />;
+  }
+
+  return <LexScan user={session.user} />;
 }

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { SAMPLE_CONTRACT } from '../utils/constants';
 
 export default function Uploader({ contractText, setContractText, fileName, setFileName, analyze, loading, extractText }) {
@@ -25,7 +26,11 @@ export default function Uploader({ contractText, setContractText, fileName, setF
       </div>
 
       {/* Drop zone */}
-      <div
+      <motion.div
+        layout
+        whileHover={{ scale: 1.015, borderColor: '#C8A96E', backgroundColor: 'rgba(200,169,110,0.06)' }}
+        whileTap={{ scale: 0.985 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
@@ -33,7 +38,7 @@ export default function Uploader({ contractText, setContractText, fileName, setF
         style={{
           border: `2px dashed ${dragOver ? "#C8A96E" : "#2A2D38"}`,
           borderRadius: 12, padding: "36px 24px", textAlign: "center",
-          cursor: "pointer", marginBottom: 20, transition: "all 0.2s",
+          cursor: "pointer", marginBottom: 20,
           background: dragOver ? "rgba(200,169,110,0.05)" : "transparent",
         }}>
         <div style={{ fontSize: 32, marginBottom: 10 }}>📄</div>
@@ -42,7 +47,7 @@ export default function Uploader({ contractText, setContractText, fileName, setF
         </div>
         <div style={{ color: "#555A6A", fontSize: 12, fontFamily: "system-ui" }}>PDF · DOCX · TXT · PNG · JPG &nbsp;·&nbsp; or click to browse</div>
         <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg" onChange={(e) => e.target.files[0] && extractText(e.target.files[0])} style={{ display: "none" }} />
-      </div>
+      </motion.div>
 
       {fileName && (
         <div style={{ background: "#13161D", border: "1px solid #2A2D38", borderRadius: 8, padding: "10px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
