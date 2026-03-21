@@ -25,18 +25,18 @@
       }
 
       body.light-theme {
-        --bg-main: #F4F6F9;
+        --bg-main: #E2E8F0; /* Deepen backing so White panels strictly pop */
         --bg-panel: #FFFFFF;
-        --bg-panel-hover: #F8FAFC;
-        --border-main: #E2E8F0;
+        --bg-panel-hover: #F1F5F9;
+        --border-main: #94A3B8; /* Much darker structural lines */
         --border-light: #CBD5E1;
         --text-main: #0F172A;
-        --text-muted: #475569;
-        --text-dim: #475569;
-        --accent-gold: #A37526;
+        --text-muted: #1E293B;
+        --text-dim: #334155;
+        --accent-gold: #B48530;
         --accent-gold-dark: #7A5313;
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(0, 0, 0, 0.08);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(0, 0, 0, 0.18); /* Strong physical outlines */
       }
 
       body {
@@ -44,6 +44,11 @@
         color: var(--text-main) !important;
         transition: background-color 0.4s ease, color 0.4s ease;
       }
+      
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: var(--border-main); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
       
       @media print {
         body { background: white !important; color: black !important; padding: 20px !important; }

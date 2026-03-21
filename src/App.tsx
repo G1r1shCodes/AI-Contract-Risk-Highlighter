@@ -311,9 +311,9 @@ function LexScan({ user, setShowAuth }: { user: any, setShowAuth: (s: boolean) =
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
           {!user ? (
-             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontSize: 12, fontFamily: 'system-ui', border: '1px dashed var(--bg-panel-hover)', borderRadius: 8, marginTop: 16 }}>
+             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-main)', fontSize: 12, fontFamily: 'system-ui', border: '1px dashed var(--border-main)', borderRadius: 8, marginTop: 16 }}>
                <p style={{ lineHeight: 1.6, marginBottom: 16 }}>Sign in to automatically save and track your legal documents in the cloud.</p>
-               <button onClick={() => setShowAuth(true)} style={{ background: 'var(--bg-panel-hover)', border: 'none', color: 'var(--accent-gold)', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em' }}>GET STARTED</button>
+               <button onClick={() => setShowAuth(true)} style={{ background: 'var(--bg-panel-hover)', border: '1px solid var(--border-main)', color: 'var(--text-main)', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em' }}>GET STARTED</button>
              </div>
           ) : contractHistory.length === 0 ? (
             <div style={{ padding: "10px 8px", fontSize: 11, color: "var(--text-dim)", fontFamily: "'Inter', sans-serif" }}>No saved history.</div>
