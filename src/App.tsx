@@ -204,9 +204,9 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
               finalRisks.risks = [...finalRisks.risks, obj];
               let fs = 0;
               finalRisks.risks.forEach((r: any) => {
-                if (r.level === "high") fs += 25;
+                if (r.level === "high") fs += 20;
                 else if (r.level === "medium") fs += 10;
-                else if (r.level === "low") fs += 3;
+                else if (r.level === "low") fs += 2;
               });
               finalRisks.riskScore = Math.min(fs, 100);
               setRisks({ ...finalRisks });
@@ -364,7 +364,20 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
       </div>
       {/* Summary */}
       <div style={{ flex: 1, fontSize: isMobile ? 11 : 12, color: "var(--text-muted)", lineHeight: 1.6, minWidth: 0 }}>
-        {loading ? (<><div className="skeleton" style={{ height: 10, width: "85%", marginBottom: 6 }} /><div className="skeleton" style={{ height: 10, width: "55%" }} /></>) : risks?.summary}
+        {loading ? (<><div className="skeleton" style={{ height: 10, width: "85%", marginBottom: 6 }} /><div className="skeleton" style={{ height: 10, width: "55%" }} /></>) : (
+          <>
+            <div style={{ marginBottom: score > 0 ? 6 : 0 }}>{risks?.summary}</div>
+            {score > 0 && (
+              <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter',sans-serif", padding: "4px 8px", background: "var(--bg-panel-hover)", borderRadius: 4, display: "inline-block", border: "1px solid var(--border-light)" }}>
+                <strong>Breakdown:</strong> Starts at 0.
+                {counts.high > 0 ? ` High (+20) × ${counts.high}.` : ''}
+                {counts.medium > 0 ? ` Medium (+10) × ${counts.medium}.` : ''}
+                {counts.low > 0 ? ` Low (+2) × ${counts.low}.` : ''}
+                {(counts.high * 20 + counts.medium * 10 + counts.low * 2) > 100 ? " (Capped at 100)" : ""}
+              </div>
+            )}
+          </>
+        )}
       </div>
       {/* Counters — hide on smallest phones */}
       {!isMobile && (
