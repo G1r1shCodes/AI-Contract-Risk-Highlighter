@@ -210,7 +210,8 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
               });
               const approxPages = Math.max(1, contractText.length / 3000);
               const lengthFactor = Math.sqrt(approxPages);
-              finalRisks.riskScore = Math.min(Math.round(rawPenalty / lengthFactor), 100);
+              const density = rawPenalty / lengthFactor;
+              finalRisks.riskScore = Math.round(100 * (1 - Math.exp(-density / 50)));
               setRisks({ ...finalRisks });
             }
           } catch(e) {}
@@ -373,7 +374,8 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
               <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter',sans-serif", padding: "6px 10px", background: "var(--bg-panel-hover)", borderRadius: 4, display: "inline-block", border: "1px solid var(--border-light)", marginTop: 4 }}>
                 <strong style={{ color: "var(--text-main)" }}>How this was scored:</strong><br />
                 Found {risks?.risks?.length} risks totaling {counts.high * 25 + counts.medium * 10 + counts.low * 3} raw penalty points. 
-                This penalty is mathematically normalized against the contract's length (~{Math.max(1, Math.round(contractText.length / 3000))} pages) to calculate the final risk density score of {score}/100.
+                This penalty is divided by the contract's length factor (~{Math.max(1, Math.round(contractText.length / 3000))} {Math.max(1, Math.round(contractText.length / 3000)) === 1 ? 'page' : 'pages'}) to find the Risk Density. 
+                The density is then smoothly mapped to a true 0-100 scale, resulting in a final score of {score}.
               </div>
             )}
           </>
