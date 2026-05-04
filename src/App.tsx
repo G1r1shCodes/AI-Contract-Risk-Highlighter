@@ -198,22 +198,17 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
             if (obj.error) { alert("API Error: " + obj.error); setLoading(false); return; }
             if (obj.type === "summary" || obj.summary !== undefined) {
               finalRisks.summary = obj.summary || "AI Contract Scan Complete.";
-              let parsedScore = parseFloat(obj.riskScore || obj.score || 0);
-              if (isNaN(parsedScore)) parsedScore = 0;
-              finalRisks.riskScore = parsedScore;
               setRisks({ ...finalRisks });
               setLoading(false);
             } else if (obj.type === "risk" || obj.quote !== undefined) {
               finalRisks.risks.push(obj);
-              if (finalRisks.riskScore === 0) {
-                let fs = 0;
-                finalRisks.risks.forEach((r: any) => {
-                  if (r.level === "high") fs += 25;
-                  else if (r.level === "medium") fs += 10;
-                  else if (r.level === "low") fs += 3;
-                });
-                finalRisks.riskScore = Math.min(fs, 100);
-              }
+              let fs = 0;
+              finalRisks.risks.forEach((r: any) => {
+                if (r.level === "high") fs += 25;
+                else if (r.level === "medium") fs += 10;
+                else if (r.level === "low") fs += 3;
+              });
+              finalRisks.riskScore = Math.min(fs, 100);
               setRisks({ ...finalRisks });
             }
           } catch(e) {}
@@ -270,8 +265,7 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
 
   const counts: any = { high: 0, medium: 0, low: 0 };
   risks?.risks?.forEach((r: any) => { if (counts[r.level] !== undefined) counts[r.level]++; });
-  const rawScore = risks?.riskScore || 0;
-  const score = rawScore <= 10 && rawScore > 0 ? rawScore * 10 : rawScore;
+  const score = risks?.riskScore || 0;
   const scoreColor = score >= 70 ? "#E53935" : score >= 40 ? "#FB8C00" : "#43A047";
 
   const resetToInput = useCallback(() => {
@@ -539,9 +533,8 @@ export default function App() {
       <LexScan user={session?.user} setShowAuth={setShowAuth} />
       {showAuth && !session && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-          <div style={{ position: "relative", width: "100%", maxWidth: 420 }}>
-            <button onClick={() => setShowAuth(false)} style={{ position: "absolute", top: 14, right: 14, background: "var(--bg-panel-hover)", border: "1px solid var(--border-light)", color: "var(--text-muted)", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 10, fontSize: 16 }}>&#215;</button>
-            <Auth />
+          <div style={{ display: "flex", justifyContent: "center", width: "100%", maxWidth: 420 }}>
+            <Auth onClose={() => setShowAuth(false)} />
           </div>
         </div>
       )}

@@ -22,9 +22,7 @@ CRITICAL RULES — FOLLOW EXACTLY:
 6. Confidence reflects how clearly the clause is problematic (1.0 = unambiguously risky)
 
 ─── LINE 1: SUMMARY (required, always first) ───
-{"type":"summary","summary":"2-3 sentence professional assessment naming the top 2-3 risks and their severity","riskScore":<integer 0-100>}
-
-riskScore guide: 0-30 = low risk, 31-60 = moderate, 61-80 = high risk, 81-100 = severe
+{"type":"summary","summary":"2-3 sentence professional assessment naming the top 2-3 risks and their severity"}
 
 ─── LINES 2+: RISKS (identify 6–12 risks) ───
 {"type":"risk","id":<n>,"quote":"verbatim contract text, 10-45 words, exact substring","level":"high|medium|low","category":"Payment|IP|Liability|Termination|Confidentiality|Arbitration|Indemnity|Penalty|Scope|Governing Law|Ambiguity","title":"4–6 word risk title","explanation":"1-2 sentences: what makes this clause legally dangerous","impact":"Specific real-world consequence: financial loss amount, IP forfeiture, legal liability exposure, operational disruption — be concrete","suggestedFix":"Specific alternative clause text or key negotiation point the signing party should demand","confidence":<number 0.5-1.0>,"clauseRef":"Section/clause number if visible in contract, else empty string"}
