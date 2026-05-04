@@ -202,13 +202,15 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
               setLoading(false);
             } else if (obj.type === "risk" || obj.quote !== undefined) {
               finalRisks.risks = [...finalRisks.risks, obj];
-              let fs = 0;
+              let rawPenalty = 0;
               finalRisks.risks.forEach((r: any) => {
-                if (r.level === "high") fs += 20;
-                else if (r.level === "medium") fs += 10;
-                else if (r.level === "low") fs += 2;
+                if (r.level === "high") rawPenalty += 25;
+                else if (r.level === "medium") rawPenalty += 10;
+                else if (r.level === "low") rawPenalty += 3;
               });
-              finalRisks.riskScore = Math.min(fs, 100);
+              const approxPages = Math.max(1, contractText.length / 3000);
+              const lengthFactor = Math.sqrt(approxPages);
+              finalRisks.riskScore = Math.min(Math.round(rawPenalty / lengthFactor), 100);
               setRisks({ ...finalRisks });
             }
           } catch(e) {}
@@ -368,12 +370,10 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
           <>
             <div style={{ marginBottom: score > 0 ? 6 : 0 }}>{risks?.summary}</div>
             {score > 0 && (
-              <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter',sans-serif", padding: "4px 8px", background: "var(--bg-panel-hover)", borderRadius: 4, display: "inline-block", border: "1px solid var(--border-light)" }}>
-                <strong>Breakdown:</strong> Starts at 0.
-                {counts.high > 0 ? ` High (+20) × ${counts.high}.` : ''}
-                {counts.medium > 0 ? ` Medium (+10) × ${counts.medium}.` : ''}
-                {counts.low > 0 ? ` Low (+2) × ${counts.low}.` : ''}
-                {(counts.high * 20 + counts.medium * 10 + counts.low * 2) > 100 ? " (Capped at 100)" : ""}
+              <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter',sans-serif", padding: "6px 10px", background: "var(--bg-panel-hover)", borderRadius: 4, display: "inline-block", border: "1px solid var(--border-light)", marginTop: 4 }}>
+                <strong style={{ color: "var(--text-main)" }}>How this was scored:</strong><br />
+                Found {risks?.risks?.length} risks totaling {counts.high * 25 + counts.medium * 10 + counts.low * 3} raw penalty points. 
+                This penalty is mathematically normalized against the contract's length (~{Math.max(1, Math.round(contractText.length / 3000))} pages) to calculate the final risk density score of {score}/100.
               </div>
             )}
           </>
