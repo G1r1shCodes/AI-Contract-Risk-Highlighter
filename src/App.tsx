@@ -201,7 +201,7 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
               setRisks({ ...finalRisks });
               setLoading(false);
             } else if (obj.type === "risk" || obj.quote !== undefined) {
-              finalRisks.risks.push(obj);
+              finalRisks.risks = [...finalRisks.risks, obj];
               let fs = 0;
               finalRisks.risks.forEach((r: any) => {
                 if (r.level === "high") fs += 25;
