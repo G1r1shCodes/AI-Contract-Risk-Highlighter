@@ -198,22 +198,20 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
             if (obj.error) { alert("API Error: " + obj.error); setLoading(false); return; }
             if (obj.type === "summary" || obj.summary !== undefined) {
               finalRisks.summary = obj.summary || "AI Contract Scan Complete.";
-              let parsedScore = parseFloat(obj.riskScore || obj.score || 0);
-              if (isNaN(parsedScore)) parsedScore = 0;
-              finalRisks.riskScore = parsedScore;
               setRisks({ ...finalRisks });
               setLoading(false);
             } else if (obj.type === "risk" || obj.quote !== undefined) {
-              finalRisks.risks.push(obj);
-              if (finalRisks.riskScore === 0) {
-                let fs = 0;
-                finalRisks.risks.forEach((r: any) => {
-                  if (r.level === "high") fs += 25;
-                  else if (r.level === "medium") fs += 10;
-                  else if (r.level === "low") fs += 3;
-                });
-                finalRisks.riskScore = Math.min(fs, 100);
-              }
+              finalRisks.risks = [...finalRisks.risks, obj];
+              let rawPenalty = 0;
+              finalRisks.risks.forEach((r: any) => {
+                if (r.level === "high") rawPenalty += 25;
+                else if (r.level === "medium") rawPenalty += 10;
+                else if (r.level === "low") rawPenalty += 3;
+              });
+              const approxPages = Math.max(1, contractText.length / 3000);
+              const lengthFactor = Math.sqrt(approxPages);
+              const density = rawPenalty / lengthFactor;
+              finalRisks.riskScore = Math.round(100 * (1 - Math.exp(-density / 50)));
               setRisks({ ...finalRisks });
             }
           } catch(e) {}
@@ -270,8 +268,7 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
 
   const counts: any = { high: 0, medium: 0, low: 0 };
   risks?.risks?.forEach((r: any) => { if (counts[r.level] !== undefined) counts[r.level]++; });
-  const rawScore = risks?.riskScore || 0;
-  const score = rawScore <= 10 && rawScore > 0 ? rawScore * 10 : rawScore;
+  const score = risks?.riskScore || 0;
   const scoreColor = score >= 70 ? "#E53935" : score >= 40 ? "#FB8C00" : "#43A047";
 
   const resetToInput = useCallback(() => {
@@ -370,7 +367,19 @@ function LexScan({ user, setShowAuth }: { user: any; setShowAuth: (s: boolean) =
       </div>
       {/* Summary */}
       <div style={{ flex: 1, fontSize: isMobile ? 11 : 12, color: "var(--text-muted)", lineHeight: 1.6, minWidth: 0 }}>
-        {loading ? (<><div className="skeleton" style={{ height: 10, width: "85%", marginBottom: 6 }} /><div className="skeleton" style={{ height: 10, width: "55%" }} /></>) : risks?.summary}
+        {loading ? (<><div className="skeleton" style={{ height: 10, width: "85%", marginBottom: 6 }} /><div className="skeleton" style={{ height: 10, width: "55%" }} /></>) : (
+          <>
+            <div style={{ marginBottom: score > 0 ? 6 : 0 }}>{risks?.summary}</div>
+            {score > 0 && (
+              <div style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "'Inter',sans-serif", padding: "6px 10px", background: "var(--bg-panel-hover)", borderRadius: 4, display: "inline-block", border: "1px solid var(--border-light)", marginTop: 4 }}>
+                <strong style={{ color: "var(--text-main)" }}>How this was scored:</strong><br />
+                Found {risks?.risks?.length} risks totaling {counts.high * 25 + counts.medium * 10 + counts.low * 3} raw penalty points. 
+                This penalty is divided by the contract's length factor (~{Math.max(1, Math.round(contractText.length / 3000))} {Math.max(1, Math.round(contractText.length / 3000)) === 1 ? 'page' : 'pages'}) to find the Risk Density. 
+                The density is then smoothly mapped to a true 0-100 scale, resulting in a final score of {score}.
+              </div>
+            )}
+          </>
+        )}
       </div>
       {/* Counters — hide on smallest phones */}
       {!isMobile && (
@@ -539,9 +548,8 @@ export default function App() {
       <LexScan user={session?.user} setShowAuth={setShowAuth} />
       {showAuth && !session && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-          <div style={{ position: "relative", width: "100%", maxWidth: 420 }}>
-            <button onClick={() => setShowAuth(false)} style={{ position: "absolute", top: 14, right: 14, background: "var(--bg-panel-hover)", border: "1px solid var(--border-light)", color: "var(--text-muted)", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 10, fontSize: 16 }}>&#215;</button>
-            <Auth />
+          <div style={{ display: "flex", justifyContent: "center", width: "100%", maxWidth: 420 }}>
+            <Auth onClose={() => setShowAuth(false)} />
           </div>
         </div>
       )}
