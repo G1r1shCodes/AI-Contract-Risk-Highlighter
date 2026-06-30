@@ -22,7 +22,6 @@
 
 LexScan is an advanced AI-powered legal technology application designed to instantly analyze contracts, highlight critical risks, and provide conversational Q&A capabilities directly on document text.
 
----
 ## Features
 
 - OCR-based extraction for scanned contracts (`.jpg`, `.png`) using Tesseract.js web workers.
