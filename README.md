@@ -1,46 +1,83 @@
+```text
+██╗     ███████╗██╗  ██╗███████╗ ██████╗ █████╗ ███╗   ██╗
+██║     ██╔════╝╚██╗██╔╝██╔════╝██╔════╝██╔══██╗████╗  ██║
+██║     █████╗   ╚███╔╝ ███████╗██║     ███████║██╔██╗ ██║
+██║     ██╔══╝   ██╔██╗ ╚════██║██║     ██╔══██║██║╚██╗██║
+███████╗███████╗██╔╝ ██╗███████║╚██████╗██║  ██║██║ ╚████║
+╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝
+```
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white">
+  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+  <img src="https://img.shields.io/badge/Vite-Frontend-646CFF?style=for-the-badge&logo=vite&logoColor=white">
+  <img src="https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=node.js&logoColor=white">
+  <img src="https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white">
+  <img src="https://img.shields.io/badge/Groq-LLM-F55036?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Tesseract.js-OCR-5A67D8?style=for-the-badge">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge">
+</p>
+
 # LexScan: AI Contract Risk Highlighter
 
-LexScan is an advanced, AI-powered legal technology application designed to instantly analyze contracts, highlight critical risks, and provide conversational Q&A capabilities directly on the document text.
+LexScan is an advanced AI-powered legal technology application designed to instantly analyze contracts, highlight critical risks, and provide conversational Q&A capabilities directly on document text.
 
-## 🚀 Features (V2 Architecture)
-- **OCR Image Vision:** Drag and drop non-selectable scanned contracts (`.jpg`, `.png`). A native `Tesseract.js` web-worker seamlessly extracts physical pixels into machine-readable text.
-- **Lightning SSE Streaming:** Server-Sent Events natively stream JSONL Risk Cards out of the Groq LLM to your React frontend, dropping perceived load times from 15s down to 2s.
-- **Database Persistence:** An offline-first `localStorage` caching engine permanently saves past reports into a robust 'HISTORY' sidebar, preventing data loss on browser refreshes.
-- **Fuzzy-Matched Highlighting:** Visually highlights the exact risky clauses directly inside the React DOM using `fuzzysort` text normalization.
-- **Secure Backend Proxy:** A lightweight Express server completely isolates your private LLM API keys from the client payload.
-- **Concurrent Cluster Booting:** Spin up both the Vite frontend and Node backend simultaneously with a single command.
+---
+## Features
 
-## 🛠️ Tech Stack
-- **Frontend:** React + TypeScript + Vite
-- **Backend:** Node.js + Express
-- **AI Engine:** Groq (llama-3.3-70b-versatile)
-- **Document Extractors:** Tesseract.js (OCR), Mammoth.js (DOCX), PDF.js
+- OCR-based extraction for scanned contracts (`.jpg`, `.png`) using Tesseract.js web workers.
+- Server-Sent Events streaming for real-time risk analysis.
+- Persistent document history using localStorage.
+- Fuzzy-matched clause highlighting within the document viewer.
+- Secure backend proxy for API key protection.
+- Simultaneous frontend and backend startup using concurrently.
 
-## ⚙️ Quick Start
+## Tech Stack
 
-### 1. Environment Variables
-You must create a `.env.local` file in the root directory to store your private API keys. Do not commit this file.
+| Category | Technology |
+|---------|------------|
+| Frontend | React, TypeScript, Vite |
+| Backend | Node.js, Express |
+| AI Engine | Groq (llama-3.3-70b-versatile) |
+| OCR | Tesseract.js |
+| Document Parsing | PDF.js, Mammoth.js |
+
+## Quick Start
+
+### Environment Variables
+
+Create a `.env.local` file:
+
 ```env
 VITE_GROQ_API_KEY=gsk_your_private_groq_key_here
 ```
 
-### 2. Install Dependencies
+### Install Dependencies
+
 ```bash
 npm install
 ```
 
-### 3. Run the Cluster
+### Run the Application
+
 ```bash
 npm run dev
 ```
-This single command uses `concurrently` to boot the backend proxy on `http://localhost:3001` and the React frontend on `http://localhost:3005`.
 
-## 📸 Interface Previews
+This command launches:
+- Backend: `http://localhost:3001`
+- Frontend: `http://localhost:3005`
+
+## Interface Previews
+
 ### Visual Risk Highlights
+
 ![Risk Highlights](./assets/screenshot1.png)
 
 ### Offline Document History
+
 ![Document History](./assets/screenshot2.png)
 
-## 🔒 Security Note
-The `.env.local` file is strictly ignored via `.gitignore` to prevent secret leakage. The backend proxy (`server/index.js`) mitigates the risk of exposing the Groq key to the public React bundle.
+## Security
+
+The `.env.local` file is excluded through `.gitignore`. The backend proxy prevents exposing Groq API credentials to the client application.
